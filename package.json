@@ -1,0 +1,15 @@
+{
+  "name": "swediversity",
+  "version": "1.0.0",
+  "description": "The server of the swediversity",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon ./src/app.js"
+  },
+  "author": "David Boram Hong",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
