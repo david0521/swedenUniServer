@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const Courses = require("./course")
+const Programs = require("./program")
 
 /**
  * name: University name (e.g. University of Gothenburg).
  * city: The location of the university (e.g. Gothenburg).
- * courses: An array that stores the courses taught in the university.
+ * programs: An array that stores the programs taught in the university.
  */
 
 const universitySchema = new Schema({
@@ -18,10 +18,10 @@ const universitySchema = new Schema({
         type: String,
         required: [true, "Located city required"]
     },
-    courses: [
+    programs: [
         {
             type: Schema.Types.ObjectId,
-            ref: Courses
+            ref: Programs
         }
     ]
 });

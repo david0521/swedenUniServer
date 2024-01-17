@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 /**
- * courseCode: The course code of the record.
+ * programCode: The program code of the record.
  * minScore: The minimum score that was required to enter the program
  * numOfApplicants: The number of applicants for the following selection.
  * numOfQualified: The number of applicants who met the prerequisites for the following selection.
@@ -13,9 +13,9 @@ const Schema = mongoose.Schema;
  */
 
 const recordSchema = new Schema ({
-    courseCode: {
+    programCode: {
         type: String,
-        required: [true, "Course code must be registered."]
+        required: [true, "Program code must be registered."]
     },
     minScore: {
         type: Number,
