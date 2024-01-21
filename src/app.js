@@ -1,8 +1,13 @@
 const express = require('express');
 const mongoose = require("mongoose")
+const cors = require("cors");
+const UniversityController = require("./controllers/university-controller")
 const app = express();
+app.use(express.json());
+app.use(cors());
 const mongoURI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/Swediversity";
 const port = 3000;
+
 
 // Connect to MongoDB
 mongoose
@@ -19,11 +24,13 @@ mongoose
         console.log(`Connected to MongoDB with URI: ${mongoURI}`);
     });
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+app.get('/api', (req, res) => {
+  res.send('Swediversity API is running');
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+app.use("/api/universities", UniversityController)
 
+app.listen(port, function (err) {
+  if (err) throw err;
+  console.log(`Backend: http://localhost:${port}/api`);
 });
