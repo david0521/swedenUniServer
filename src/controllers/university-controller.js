@@ -13,13 +13,19 @@ const Universities = require("../schemas/university.js")
  * @return {object} 404 - No university registered
  */
 router.get("/", async (req, res) => {
+    try {
         const universities = await Universities.find();
 
         if (universities.length === 0) {
-            return res.status(404).send("No universities found!!")
+            res.status(404).send("No universities found!!")
         }
 
-        return res.send(universities);
+        res.send(universities);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("An internal server error has occured.")
+
+    }
 });
 
 /**
@@ -30,13 +36,15 @@ router.get("/", async (req, res) => {
  * @return {object} 404 - University not found
  */
 router.get("/:id", async (req, res) => {
-    const university = await Universities.findOne({_id: req.params.id });
+    try {
+         university = await Universities.findOne({_id: req.params.id });
 
     if (university == null) {
-        return res.status(404).send("University not found")
+        res.status(404).send("University not found")
     }
 
     return res.send(university);
+    }
 });
 
 
