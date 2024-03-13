@@ -1,7 +1,8 @@
 const express = require('express');
 const mongoose = require("mongoose")
 const cors = require("cors");
-const UniversityController = require("./controllers/university-controller")
+const UniversityController = require("./controllers/university-controller");
+const ProgramController = require("./controllers/programs-controller");
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -29,6 +30,7 @@ app.get('/api', (req, res) => {
 });
 
 app.use("/api/universities", UniversityController)
+app.use("/api/programs", ProgramController);
 
 app.listen(port, function (err) {
   if (err) throw err;
