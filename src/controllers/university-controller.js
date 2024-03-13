@@ -1,6 +1,5 @@
 const router = require("express").Router();
 const { applyDefaults } = require("../schemas/records.js");
-const university = require("../schemas/university.js");
 const Universities = require("../schemas/university.js")
 
 
@@ -17,13 +16,13 @@ router.get("/", async (req, res) => {
         const universities = await Universities.find();
 
         if (universities.length === 0) {
-            res.status(404).send("No universities found!!")
+            return res.status(404).send("No universities found!!")
         }
 
-        res.send(universities);
+        return res.send(universities);
     } catch (err) {
         console.log(err);
-        res.status(500).send("An internal server error has occured.")
+        return res.status(500).send("An internal server error has occured.")
 
     }
 });
@@ -39,11 +38,13 @@ router.get("/:id", async (req, res) => {
     try {
          university = await Universities.findOne({_id: req.params.id });
 
-    if (university == null) {
-        res.status(404).send("University not found")
-    }
-
+        if (university == null) {
+            return res.status(404).send("University not found")
+        }
     return res.send(university);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "An internal servver error has occured" });
     }
 });
 
@@ -55,10 +56,10 @@ router.get("/:id", async (req, res) => {
  * @return {object} 200 - Success response
  * @return {object} 500 - Internal server error
 
- 
 router.get("/:city", async (req, res) => {
     try {
-        const universities = await Universities.find({city: req.params.city});
+        const universities = await Universities.find({city: req.params.city}).select("-_id");
+        console.log("City parameter:", req.params.city);
 
         if (universities.length === 0) {
             return res.status(200).json({ message: "No universities registered in this city" });
@@ -69,8 +70,8 @@ router.get("/:city", async (req, res) => {
         console.error(err);
         return res.status(500).json({ error: "An internal server error has occurred" });
     }
-});
-*/
+});*/
+
 
 /**
  * Post /universities
@@ -102,10 +103,10 @@ router.post("/", async (req, res) => {
 
         await newUniversity.save();
 
-        res.status(201).json({ message: "New University Saved", university: newUniversity });
+        return res.status(201).json({ message: "New University Saved", university: newUniversity });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "An internal server error occured" })
+        return res.status(500).json({ error: "An internal server error occured" });
     }
 });
 
@@ -122,7 +123,7 @@ router.patch("/:id", async (req, res) => {
         const existingUniversity = await Universities.findById(req.params.id);
 
         if (!existingUniversity) {
-            res.status(404).json({ error: "University with the following id does not exist" });
+            return res.status(404).json({ error: "University with the following id does not exist" });
         }
         
         const oldInfo = existingUniversity.toObject();
@@ -136,10 +137,10 @@ router.patch("/:id", async (req, res) => {
 
         await Universities.findByIdAndUpdate(req.params.id, { ...oldInfo, ...newInfo});
 
-        res.status(200).send(await Universities.findById(req.params.id))
+        return res.status(200).send(await Universities.findById(req.params.id))
     } catch (err) {
         console.error(err)
-        res.status(500).json({ error: "An internal server error has occured"})
+        return res.status(500).json({ error: "An internal server error has occured"})
     }
 
 })
@@ -160,12 +161,12 @@ router.delete("/:id", async (req, res) => {
             return res.status(404).json({ error: "University with the following id does not exist" });
         }
 
-        await Universities.deleteOne({ _id: req.params.id })
-        return res.status(200).json({ message: "Deleted Successfully!!"})
+        await Universities.deleteOne({ _id: req.params.id });
+        return res.status(200).json({ message: "Deleted Successfully!!"});
 
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: "An internal server error occured" })
+        return res.status(500).json({ error: "An internal server error occured" });
     }
 });
 
