@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Programs = require("../schemas/program.js")
+const University = require("../schemas/university.js")
 
 
 
@@ -125,13 +126,18 @@ router.get("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
     try {
         console.log(req.body)
-        const { name, programCode, universityName, programDescription, prerequisite } = req.body;
+        const name = req.body.programName;
+        const programCode = req.body.programCode;
+        const universityName = req.body.programUniversity;
+        const programDescription = req.body.programDescription;
+        const prerequisite = req.body.programPrerequisites;
+        const tuitionFee = req.body.programTuition;
 
-        if (!name || !programCode || !universityName || !prerequisite) {
+        if (!name || !programCode || !universityName || !prerequisite || !tuitionFee) {
             return res.status(400).json({ error: "To create a new program, name, program code, university name, and prerequisites are required." });
         }
 
-        const invalidPrerequisites = prerequisite.filter(p => !["Math3B", "Math4", "Math5", "Physics1A", "Physics2", "Chemistry1", "Chemistry2", "Biology1", "Biology2"].includes(p));
+        const invalidPrerequisites = prerequisite.filter(p => !["Math3B", "Math4", "Math5", "Physics1A", "Physics2", "Chemistry1", "Chemistry2", "Biology1", "Biology2", "Science2", "Civics1B", "History1B", "SpecialRequirement"].includes(p));
         if (invalidPrerequisites.length > 0) {
             return res.status(400).json({ error: "Invalid prerequisites: " + invalidPrerequisites.join(", ") });
         }
@@ -143,16 +149,23 @@ router.post("/", async (req, res) => {
         }
 
         const newProgram = new Programs ({
-            name,
-            programCode,
-            universityName,
-            programDescription,
-            prerequisite
+            name: name,
+            programCode: programCode,
+            universityName: universityName,
+            programDescription: programDescription,
+            prerequisite: prerequisite,
+            tuitionFee: tuitionFee
         })
 
         await newProgram.save();
 
-        return res.status(201).json({ message: "New University Saved", program: newProgram });
+        const university = await University.findOneAndUpdate(
+            { name: universityName },
+            { $push: { programs: newProgram._id } },
+            { new: true }
+        );
+
+        return res.status(201).json({ message: "New Program Saved", program: newProgram });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ error: "An internal server error occured" });

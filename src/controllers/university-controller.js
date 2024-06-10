@@ -28,6 +28,33 @@ router.get("/", async (req, res) => {
 });
 
 /**
+ * Get /universities/byCity/{city}
+ * @summary Returns all universities from a specific city
+ * @tags universities
+ * @return {object} 200 - Success response
+ * @return {object} 500 - Internal server error
+ * */
+
+router.get("/byCity", async (req, res) => {
+    try {
+        const requestedCity = req.query.city;
+
+        if (!requestedCity) {
+            return res.status(400).json({ error: "Invalid or missing city in the request." })
+        }
+
+        console.log(requestedCity);
+
+        const universitiesInCity = await Universities.find({ city: requestedCity })
+        return res.status(200).json({ universities: universitiesInCity })
+        
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "An internal server error has occurred" });
+    }
+});
+
+/**
  * Get /universities/{id}
  * @summary Returns a specific university
  * @tags universities
@@ -48,31 +75,6 @@ router.get("/:id", async (req, res) => {
     }
 });
 
-
-/** TODO: Fix
- * Get /universities/{city}
- * @summary Returns all universities from a specific city
- * @tags universities
- * @return {object} 200 - Success response
- * @return {object} 500 - Internal server error
-
-router.get("/:city", async (req, res) => {
-    try {
-        const universities = await Universities.find({city: req.params.city}).select("-_id");
-        console.log("City parameter:", req.params.city);
-
-        if (universities.length === 0) {
-            return res.status(200).json({ message: "No universities registered in this city" });
-        }
-
-        return res.status(200).json(universities);
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: "An internal server error has occurred" });
-    }
-});*/
-
-
 /**
  * Post /universities
  * @summary Create a new university
@@ -84,8 +86,9 @@ router.get("/:city", async (req, res) => {
  */
 router.post("/", async (req, res) => {
     try {
-        console.log(req.body)
-        const { name, city } = req.body;
+        console.log(req.body.name)
+        const name = req.body.name
+        const city = req.body.city
 
         if (!name || !city) {
             return res.status(400).json({ error: "To create a new university, name and city are required." });
@@ -96,9 +99,9 @@ router.post("/", async (req, res) => {
             return res.status(409).json({ error: "The following university is already registered in the system." });
         }
 
-        const newUniversity = new university ({
-            name,
-            city
+        const newUniversity = new Universities ({
+            name: name,
+            city: city
         })
 
         await newUniversity.save();
