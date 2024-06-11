@@ -29,8 +29,8 @@ const programSchema = new Schema({
     },
     prerequisite: [{
         type: String,
-        enum: ["Math3B", "Math4", "Math5", "Physics1A", "Physics2", "Chemistry1", "Chemistry2", "Biology1", "Biology2"],
-        required: [true, "Prerequisite information must be registered."]
+        enum: ["Math3B", "Math4", "Math5", "Physics1A", "Physics2", "Chemistry1", "Chemistry2", "Biology1", "Biology2", "Science2", "Civics1B", "History1B", "Language3", "SpecialRequirement"],
+        required: false
     }],
     records: [
         {
@@ -38,6 +38,10 @@ const programSchema = new Schema({
             ref: Records,
         },
     ],
+    tuitionFee: {
+        type: Number,
+        required: [true, "Tuition fee information must be registered."]
+    }
 
 });
 
