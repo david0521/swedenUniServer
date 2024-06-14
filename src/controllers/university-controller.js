@@ -40,12 +40,17 @@ router.get("/byCity", async (req, res) => {
         const requestedCity = req.query.city;
 
         if (!requestedCity) {
-            return res.status(400).json({ error: "Invalid or missing city in the request." })
+            return res.status(400).json({ error: "Missing city in the request." })
         }
 
         console.log(requestedCity);
 
         const universitiesInCity = await Universities.find({ city: requestedCity })
+
+        if (universitiesInCity.length === 0) {
+            return res.status(400).json({ error: "City not registered." })
+        }
+
         return res.status(200).json({ universities: universitiesInCity })
         
     } catch (err) {

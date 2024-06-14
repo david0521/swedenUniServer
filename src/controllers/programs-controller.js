@@ -78,12 +78,17 @@ router.get("/byUniversity", async (req, res) => {
         const requestedUniversity = req.query.universityName;
 
         if (!requestedUniversity) {
-            return res.status(400).json({ error: "Invalid or missing university in the request." });
+            return res.status(400).json({ error: "No university provided!!" });
         }
 
         console.log(requestedUniversity);
 
         const programsWithUniversity = await Programs.find({ universityName: requestedUniversity });
+
+        if (programsWithUniversity.length === 0) {
+            return res.status(400).json({ error: "University not registered in the system" });
+        }
+
         return res.status(200).json({ programs: programsWithUniversity });
 
     } catch (err) {
