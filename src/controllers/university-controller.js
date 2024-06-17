@@ -16,13 +16,15 @@ router.get("/", async (req, res) => {
         const universities = await Universities.find();
 
         if (universities.length === 0) {
-            return res.status(404).send("No universities found!!")
+            // Translation: No universities found
+            return res.status(404).send("시스템에 등록된 대학교가 존재하지 않습니다.")
         }
 
         return res.send(universities);
     } catch (err) {
         console.log(err);
-        return res.status(500).send("An internal server error has occured.")
+        // Translation: An internal server error has occured
+        return res.status(500).send("시스템상 오류가 발생하였습니다.")
 
     }
 });
@@ -40,17 +42,25 @@ router.get("/byCity", async (req, res) => {
         const requestedCity = req.query.city;
 
         if (!requestedCity) {
-            return res.status(400).json({ error: "Invalid or missing city in the request." })
+            // Translation: Missing city in the request
+            return res.status(400).json({ error: "도시 이름이 주어지지 않았습니다." })
         }
 
         console.log(requestedCity);
 
         const universitiesInCity = await Universities.find({ city: requestedCity })
+
+        if (universitiesInCity.length === 0) {
+            // Translation: City not registered
+            return res.status(400).json({ error: "시스템에 등록되지 않은 도시입니다." })
+        }
+
         return res.status(200).json({ universities: universitiesInCity })
         
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ error: "An internal server error has occurred" });
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다." });
     }
 });
 
@@ -66,12 +76,14 @@ router.get("/:id", async (req, res) => {
          university = await Universities.findOne({_id: req.params.id });
 
         if (university == null) {
-            return res.status(404).send("University not found")
+            // Translation: University not found
+            return res.status(404).send("다음 ID로 등록된 대학교는 존재하지 않습니다.")
         }
     return res.send(university);
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ error: "An internal servver error has occured" });
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다." });
     }
 });
 
@@ -91,12 +103,14 @@ router.post("/", async (req, res) => {
         const city = req.body.city
 
         if (!name || !city) {
-            return res.status(400).json({ error: "To create a new university, name and city are required." });
+            // Translation: To create a new university the following information are required: name, city
+            return res.status(400).json({ error: "새로운 대학교를 등록하기 위해서 다음 정보가 필요합니다: 이름, 도시" });
         }
         const existingUniversity = await Universities.findOne({ name: name });
 
         if (existingUniversity) {
-            return res.status(409).json({ error: "The following university is already registered in the system." });
+            // Translation: The following university is already registered in the system
+            return res.status(409).json({ error: "다음 대학교는 이미 시스템에 등록되어 있습니다." });
         }
 
         const newUniversity = new Universities ({
@@ -106,10 +120,12 @@ router.post("/", async (req, res) => {
 
         await newUniversity.save();
 
-        return res.status(201).json({ message: "New University Saved", university: newUniversity });
+        // Translation: New University Saved
+        return res.status(201).json({ message: "새로운 대학교가 등록되었습니다.", university: newUniversity });
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ error: "An internal server error occured" });
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다." });
     }
 });
 
@@ -126,7 +142,8 @@ router.patch("/:id", async (req, res) => {
         const existingUniversity = await Universities.findById(req.params.id);
 
         if (!existingUniversity) {
-            return res.status(404).json({ error: "University with the following id does not exist" });
+            // Translation: University with the following ID does not exist
+            return res.status(404).json({ error: "다음 ID로 등록된 대학교는 시스템에 존재하지 않습니다." });
         }
         
         const oldInfo = existingUniversity.toObject();
@@ -143,7 +160,8 @@ router.patch("/:id", async (req, res) => {
         return res.status(200).send(await Universities.findById(req.params.id))
     } catch (err) {
         console.error(err)
-        return res.status(500).json({ error: "An internal server error has occured"})
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다."})
     }
 
 })
@@ -161,15 +179,18 @@ router.delete("/:id", async (req, res) => {
         const existingUniversity = await Universities.findOne({ _id: req.params.id });
 
         if (!existingUniversity) {
-            return res.status(404).json({ error: "University with the following id does not exist" });
+            // Translation: University with the following ID does not exist
+            return res.status(404).json({ error: "다음 ID로 등록된 대학교는 존재하지 않습니다." });
         }
 
         await Universities.deleteOne({ _id: req.params.id });
-        return res.status(200).json({ message: "Deleted Successfully!!"});
+        // Translation: Deleted successfully
+        return res.status(200).json({ message: "성공적으로 삭제하였습니다."});
 
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ error: "An internal server error occured" });
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 문제가 발생하였습니다." });
     }
 });
 
