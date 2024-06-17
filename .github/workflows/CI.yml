@@ -51,8 +51,10 @@ jobs:
       # Start Server
       - name: Start Server
         run: |
-          nohup npm run dev > server.log 2>&1
-          sleep 5
+          npm run dev
+
+      - name: Wait for server to be ready
+        run: npx wait-on http://localhost:3000
 
       - name: Run tests
         run: |
