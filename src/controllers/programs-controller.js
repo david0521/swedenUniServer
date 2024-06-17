@@ -38,33 +38,71 @@ router.get("/byPrerequisites", async (req, res) => {
     try {
         const requestedPrerequisites = req.query.prerequisites;
 
-        if (!requestedPrerequisites) {
-            return res.status(400).json({ error: "Invalid or missing prerequisites in the request." });
-        }
-
-        // Based on the user's request of prerequisites (number of prerequisites),
-        // The system converts a single prerequisite into an array of size one.
         const prerequisitesArray = Array.isArray(requestedPrerequisites) ? requestedPrerequisites : [requestedPrerequisites];
 
-        // Checks if there are any invalid values included in the array.
-        const invalidPrerequisites = prerequisitesArray.filter(prerequisite => !["Math3B", "Math4", "Math5", "Physics1A", "Physics2", "Chemistry1", "Chemistry2", "Biology1", "Biology2"].includes(prerequisite));
+        // List of all valid prerequisites
+        const validPrerequisites = ["Math3B", "Math4", "Math5", "Physics1A", "Physics2", "Chemistry1", "Chemistry2", "Biology1", "Biology2", "Science2", "Civics1B", "History1B", "Language3", "SpecialRequirement"];
+        
+        const invalidPrerequisites = prerequisitesArray.filter(prerequisite => !validPrerequisites.includes(prerequisite));
 
-        console.log(prerequisitesArray);
+        // Map for higher category prerequisites
+        const prerequisiteMap = {
+            "Math4": ["Math3B"],
+            "Math5": ["Math3B", "Math4"],
+            "Physics2": ["Physics1A", "Science2"],
+            "Chemistry2": ["Chemistry1", "Science2"],
+            "Biology2": ["Biology1", "Science2"]
+        };
+
+        // Append prerequisites that are satisfied due to the satisfaction of a higher category
+        prerequisitesArray.forEach(prerequisite => {
+            if (prerequisiteMap[prerequisite]) {
+                prerequisiteMap[prerequisite].forEach(satisfiedPrerequisite => {
+                    if (!prerequisitesArray.includes(satisfiedPrerequisite)) {
+                        prerequisitesArray.push(satisfiedPrerequisite);
+                    }
+                });
+            }
+        });
+
+        
 
         // Returns invalid prerequisites as the error message.
         if (invalidPrerequisites.length > 0) {
             return res.status(400).json({ error: "Invalid prerequisites specified: " + invalidPrerequisites.join(", ") });
         }
 
-        // Return the programs that match the prerequisites.
-        const programsWithPrerequisites = await Programs.find({ prerequisite: { $all: prerequisitesArray } });
-        return res.status(200).json({ programs: programsWithPrerequisites });
+        // Aggregate to find all programs that meet the prerequisites
+        const prerequisitePrograms = await Programs.aggregate([
+            {
+                $match: {
+                    prerequisite: { $exists: true }
+                }
+            },
+            {
+                $project: {
+                    name: 1,
+                    prerequisite: 1,
+                    prerequisiteIsMet: {
+                        $setIsSubset: ["$prerequisite", prerequisitesArray]
+                    }
+                }
+            },
+            {
+                $match: {
+                    prerequisiteIsMet: true
+                }
+            }
+        ]);
+
+        return res.status(200).json({ programs: prerequisitePrograms });
 
     } catch (err) {
         console.error(err);
         return res.status(500).json({ error: "An internal server error has occurred" });
     }
 });
+
 
 /**
  * Get /programs/byUniversity/{uniName}
