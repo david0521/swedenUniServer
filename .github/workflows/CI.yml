@@ -30,6 +30,16 @@ jobs:
         with:
           node-version: "18.x"
 
+      # Install dependencies
+      - name: Dependency Installation
+        run: npm install
+
+      # Start Server
+      - name: Start Server
+        run: |
+          npm run dev
+          sleep 10
+
       # Install Newman globally
       - name: Newman Installation
         run: |
@@ -47,3 +57,8 @@ jobs:
         with:
           name: Reports
           path: TestArtifacts
+
+      # Stop Server
+      - name: Stop Server
+        run: |
+          kill $(jobs -p)
