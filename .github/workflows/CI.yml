@@ -44,6 +44,11 @@ jobs:
           npm install -g newman-reporter-slackreporter
           npm install -g newman-reporter-htmlextra
 
+      - name: Start Server
+        run: |
+          npm run start &
+          sleep 3
+
       - name: Run tests
         run: |
           cd src/PostmanCollection
