@@ -37,6 +37,9 @@ jobs:
       - name: Dependency Installation
         run: npm install
 
+      - name: "Setup .env file"
+        run: echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env
+
       # Install Newman globally
       - name: Newman Installation
         run: |
