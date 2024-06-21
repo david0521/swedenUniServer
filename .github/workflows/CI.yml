@@ -1,0 +1,73 @@
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Add mongoDB as a service
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Create dir
+        run: mkdir TestArtifacts
+
+      # Install Node on the runner
+      - name: Node Installation
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+
+      # Install dependencies
+      - name: Dependency Installation
+        run: npm install
+
+      # Install Newman globally
+      - name: Newman Installation
+        run: |
+          npm install -g newman
+          npm install -g newman-reporter-slackreporter
+          npm install -g newman-reporter-htmlextra
+
+      # Start Server
+      - name: Start Server
+        run: |
+          npm run dev
+
+      - name: Wait for server to be ready
+        run: npx wait-on http://localhost:3000
+
+      - name: Run tests
+        run: |
+          cd src/PostmanCollection
+          newman run "University.postman_collection.json" -e "workspace.postman_globals.json" -r cli,htmlextra --reporter-htmlextra-export ../TestArtifacts/htmlReport.html
+
+      - name: Output Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: Reports
+          path: TestArtifacts
+
+      # Stop Server
+      - name: Stop Server
+        run: |
+          kill $(jobs -p)

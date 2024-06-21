@@ -4,9 +4,11 @@ const cors = require("cors");
 const UniversityController = require("./controllers/university-controller");
 const ProgramController = require("./controllers/programs-controller");
 const app = express();
+require('dotenv').config()
 app.use(express.json());
 app.use(cors());
-const mongoURI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/Swediversity";
+
+const mongoURI = process.env.MONGODB_URI;
 const port = 3000;
 
 
