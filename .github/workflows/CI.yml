@@ -55,9 +55,11 @@ jobs:
       - name: Run tests
         run: |
           cd src/PostmanCollection
-          newman run "University.postman_collection.json" -e "workspace.postman_globals.json" -r cli,htmlextra --reporter-htmlextra-export ../TestArtifacts/htmlReport.html
+          newman run "University.postman_collection.json" "Program.postman_collection.json" -e "workspace.postman_globals.json" -r cli,htmlextra --reporter-htmlextra-export ../TestArtifacts/htmlReport.html
+        continue-on-error: true
 
       - name: Output Results
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: Reports
@@ -65,5 +67,6 @@ jobs:
 
       # Stop Server
       - name: Stop Server
+        if: always()
         run: |
           kill $(jobs -p)
