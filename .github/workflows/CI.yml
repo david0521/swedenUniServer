@@ -4,9 +4,11 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches:
+      - "*"
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - "*"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -19,12 +21,6 @@ jobs:
     runs-on: ubuntu-latest
 
     # Add mongoDB as a service
-    services:
-      mongodb:
-        image: mongo:latest
-        ports:
-          - 27017:27017
-
     steps:
       - uses: actions/checkout@v3
 
@@ -47,14 +43,6 @@ jobs:
           npm install -g newman
           npm install -g newman-reporter-slackreporter
           npm install -g newman-reporter-htmlextra
-
-      # Start Server
-      - name: Start Server
-        run: |
-          npm run dev
-
-      - name: Wait for server to be ready
-        run: npx wait-on http://localhost:3000
 
       - name: Run tests
         run: |
