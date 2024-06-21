@@ -64,9 +64,3 @@ jobs:
         with:
           name: Reports
           path: TestArtifacts
-
-      # Stop Server
-      - name: Stop Server
-        if: always()
-        run: |
-          kill $(jobs -p)
