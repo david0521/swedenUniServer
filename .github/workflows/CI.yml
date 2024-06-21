@@ -55,7 +55,7 @@ jobs:
       - name: Run tests
         run: |
           cd src/PostmanCollection
-          newman run "University.postman_collection.json" "Program.postman_collection.json" -e "workspace.postman_globals.json" -r cli,htmlextra --reporter-htmlextra-export ../TestArtifacts/htmlReport.html
+          newman run "University.postman_collection.json" "Program.postman_collection.json" -e "workspace.postman_globals.json" -r cli,htmlextra --reporter-htmlextra-export ../../TestArtifacts/htmlReport.html
         continue-on-error: true
 
       - name: Output Results
