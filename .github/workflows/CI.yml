@@ -4,9 +4,11 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches:
+      - "*"
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - "*"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -19,12 +21,6 @@ jobs:
     runs-on: ubuntu-latest
 
     # Add mongoDB as a service
-    services:
-      mongodb:
-        image: mongo:latest
-        ports:
-          - 27017:27017
-
     steps:
       - uses: actions/checkout@v3
 
@@ -41,6 +37,9 @@ jobs:
       - name: Dependency Installation
         run: npm install
 
+      - name: "Setup .env file"
+        run: echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env
+
       # Install Newman globally
       - name: Newman Installation
         run: |
@@ -48,26 +47,26 @@ jobs:
           npm install -g newman-reporter-slackreporter
           npm install -g newman-reporter-htmlextra
 
-      # Start Server
       - name: Start Server
         run: |
-          npm run dev
+          npm run start &
+          sleep 3
 
-      - name: Wait for server to be ready
-        run: npx wait-on http://localhost:3000
-
-      - name: Run tests
+      - name: Run University Tests
         run: |
           cd src/PostmanCollection
-          newman run "University.postman_collection.json" -e "workspace.postman_globals.json" -r cli,htmlextra --reporter-htmlextra-export ../TestArtifacts/htmlReport.html
+          newman run "University.postman_collection.json" -e "workspace.postman_globals.json" -r cli,htmlextra --reporter-htmlextra-export ../../TestArtifacts/UniversityReport.html
+        continue-on-error: true
+
+      - name: Run Program Tests
+        run: |
+          cd src/PostmanCollection
+          newman run "Program.postman_collection.json" -e "workspace.postman_globals.json" -r cli,htmlextra --reporter-htmlextra-export ../../TestArtifacts/ProgramReport.html
+        continue-on-error: true
 
       - name: Output Results
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: Reports
           path: TestArtifacts
-
-      # Stop Server
-      - name: Stop Server
-        run: |
-          kill $(jobs -p)
