@@ -52,10 +52,16 @@ jobs:
           npm run start &
           sleep 3
 
-      - name: Run tests
+      - name: Run University Tests
         run: |
           cd src/PostmanCollection
-          newman run "University.postman_collection.json" "Program.postman_collection.json" -e "workspace.postman_globals.json" -r cli,htmlextra --reporter-htmlextra-export ../../TestArtifacts/htmlReport.html
+          newman run "University.postman_collection.json" -e "workspace.postman_globals.json" -r cli,htmlextra --reporter-htmlextra-export ../../TestArtifacts/UniversityReport.html
+        continue-on-error: true
+
+      - name: Run Program Tests
+        run: |
+          cd src/PostmanCollection
+          newman run "Program.postman_collection.json" -e "workspace.postman_globals.json" -r cli,htmlextra --reporter-htmlextra-export ../../TestArtifacts/ProgramReport.html
         continue-on-error: true
 
       - name: Output Results
