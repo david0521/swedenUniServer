@@ -190,7 +190,7 @@ router.post("/login", async (req, res) => {
                     res.send(err);
                 }
     
-                const token = jwt.sign({ id: user.id, email: user.email }, jwtSecret);
+                const token = jwt.sign({ id: user.id, email: user.email, exp: Math.floor(Date.now() / 1000) + (12 * 60 * 60)}, jwtSecret);
                 return res.json({ token });
             });
         })(req, res);
@@ -220,7 +220,7 @@ router.post("/register", async (req, res) => {
 
         if (!email || !password || !userName || !userType) {
             // Translation: Registeration requires: email, password, name, and account type.
-            return res.status(400).json({ error: "회원가입을 위해서는 다음 정보가 필요합니다: 이메일, 암호, 이름, 계정종류" });
+            return res.status(400).json({ error: "회원가입을 위해서는 다음 정보가 필요합니다: 이메일, 암호, 유저네임, 계정종류" });
         }
 
         if (req.body.password.length <= 8) {
