@@ -25,7 +25,7 @@ require('dotenv').config()
  * @return {object} 404 - No user registered
  * @return {object} 500 - Internal server error
  */
-router.get("/", async (req, res) => {
+router.get("/all", async (req, res) => {
     try {
         const users = await Users.find().select("-__v -password");
 
@@ -54,16 +54,16 @@ router.get("/", async (req, res) => {
  * @return {object} 500 - Internal server error
  * */
 
-router.get("/:id", async (req, res) => {
+router.get("/id/:id", async (req, res) => {
     try {
-        const requestedUser = req.params._id;
+        const requestedUser = req.params.id;
 
         if (!requestedUser) {
             // Translation: Missing user id in the request
             return res.status(400).json({ error: "회원 아이디가 주어지지 않았습니다." })
         }
-
-        const user = await Users.findOne({ id: requestedUser }).select("-__v -password")
+        
+        const user = await Users.findOne( {_id: requestedUser} ).select("-__v -password")
 
         if (user == null) {
             // Translation: User not registered
@@ -83,27 +83,20 @@ router.get("/:id", async (req, res) => {
  * Get /users/:userName
  * @summary Checks if a user with that userName exists
  * @tags users
- * @return {object} 400 - User ID not provided
  * @return {object} 500 - Internal server error
  * */
 
-router.get("/:userName", async (req, res) => {
+router.get("/userName/:userName", async (req, res) => {
     try {
         const requestedUserName = req.params.userName;
-
-        if (!requestedUserName) {
-            // Translation: Missing user id in the request
-            return res.status(400).json({ error: "회원 아이디가 주어지지 않았습니다." })
-        }
-
         const user = await Users.findOne({ userName: requestedUserName });
 
         if (user == null) {
             // Translation: ID can be used
-            return res.send.json({ message: "사용가능한 아이디입니다." })
+            return res.json({ message: "사용가능한 아이디입니다." })
         } else {
             // Translation: ID cannot be used
-            return res.send.json({ message: "이미 사용중인 아이디입니다. "})
+            return res.json({ message: "이미 사용중인 아이디입니다. "})
         }
         
     } catch (err) {
@@ -121,15 +114,17 @@ router.get("/:userName", async (req, res) => {
  * @return {object} 500 - Internal server error
  * */
 
-router.get("/prospective/:university", async (req, res) => {
+router.get("/prospective/university", async (req, res) => {
     try {
-        const requestedUniversity = req.params.university;
+        const requestedUniversity = req.query.university;
+
+        console.log(requestedUniversity)
         
         const uniID = await University.findOne({ name: requestedUniversity }).select("_id");
 
         const interestNumber = await ProspectiveStudents.countDocuments({ interestedUniversities: uniID });
 
-        return res.status(200).send(interestNumber);
+        return res.status(200).json({message: interestNumber});
         
     } catch (err) {
         console.error(err);
@@ -146,15 +141,15 @@ router.get("/prospective/:university", async (req, res) => {
  * @return {object} 500 - Internal server error
  * */
 
-router.get("/prospective/:program", async (req, res) => {
+router.get("/prospective/program", async (req, res) => {
     try {
-        const requestedProgram = req.params.program;
+        const requestedProgram = req.query.program;
         
         const programID = await Program.findOne({ name: requestedProgram }).select("_id");
 
         const interestNumber = await ProspectiveStudents.countDocuments({ interestedPrograms: programID });
 
-        return res.status(200).send(interestNumber);
+        return res.status(200).json({ message: interestNumber });
         
     } catch (err) {
         console.error(err);
@@ -223,7 +218,7 @@ router.post("/register", async (req, res) => {
             return res.status(400).json({ error: "회원가입을 위해서는 다음 정보가 필요합니다: 이메일, 암호, 유저네임, 계정종류" });
         }
 
-        if (req.body.password.length <= 8) {
+        if (req.body.password.length < 8) {
             return res.status(400).json({ error: "비밀번호는 최소한 8자리 이상이어야 합니다."})
         }
 
@@ -238,6 +233,10 @@ router.post("/register", async (req, res) => {
         if (existingAccount) {
             // Translation: The following email is already registered.
             return res.status(409).json({ error: "이미 가입된 이메일입니다."})
+        }
+
+        if (userType != 'normal' && userType != 'student' && userType != 'prospective') {
+            return res.status(400).json({ error: "존재하지 않는 계정 유형입니다." })
         }
 
         let userAccount;
@@ -256,12 +255,14 @@ router.post("/register", async (req, res) => {
                     password: password,
                     userName: userName
                 });
+                break;
             case 'student':
                 userAccount = new UniversityStudents({
                     email: email,
                     password: password,
                     userName: userName
                 })
+                break;
         }
 
         await userAccount.save();
@@ -316,6 +317,7 @@ router.patch("/:id", async (req, res) => {
     }
 
 })
+
 
 /**
  * Delete /users/{id}

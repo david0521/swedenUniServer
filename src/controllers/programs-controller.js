@@ -244,20 +244,20 @@ router.patch("/:id", async (req, res) => {
         if (!existingProgram) {
             // Translation: Program with the following ID does not exist
             res.status(404).json({ error: "다음 ID로 등록된 프로그램이 존재하지 않습니다." });
+        } else {
+            const oldInfo = existingProgram.toObject();
+            const newInfo = req.body;
+
+            delete oldInfo._id;
+            delete newInfo._id;
+
+            console.log(oldInfo);
+            console.log(newInfo);
+
+            await Programs.findByIdAndUpdate(req.params.id, { ...oldInfo, ...newInfo});
+
+            return res.status(200).send(await Programs.findById(req.params.id));
         }
-        
-        const oldInfo = existingProgram.toObject();
-        const newInfo = req.body;
-
-        delete oldInfo._id;
-        delete newInfo._id;
-
-        console.log(oldInfo);
-        console.log(newInfo);
-
-        await Programs.findByIdAndUpdate(req.params.id, { ...oldInfo, ...newInfo});
-
-        return res.status(200).send(await Programs.findById(req.params.id));
     } catch (err) {
         console.error(err);
         // Translation: An internal server error has occured
