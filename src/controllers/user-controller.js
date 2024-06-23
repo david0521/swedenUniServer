@@ -1,10 +1,19 @@
 const router = require("express").Router();
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const passport = require('passport');
+const initializePassport = require('../../passport-config.js');
+
+
 const Users = require("../schemas/user.js");
 const ProspectiveStudents = require("../schemas/prospectiveStudent.js");
 const UniversityStudents = require("../schemas/universityStudent.js");
 const University = require("../schemas/university.js");
 const Program = require("../schemas/program.js");
 
+const jwtSecret = process.env.JWT_SECRET;
+
+require('dotenv').config()
 
 
 /**
@@ -62,6 +71,40 @@ router.get("/:id", async (req, res) => {
         }
 
         return res.status(200).send(user);
+        
+    } catch (err) {
+        console.error(err);
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다." });
+    }
+});
+
+/**
+ * Get /users/:userName
+ * @summary Checks if a user with that userName exists
+ * @tags users
+ * @return {object} 400 - User ID not provided
+ * @return {object} 500 - Internal server error
+ * */
+
+router.get("/:userName", async (req, res) => {
+    try {
+        const requestedUserName = req.params.userName;
+
+        if (!requestedUserName) {
+            // Translation: Missing user id in the request
+            return res.status(400).json({ error: "회원 아이디가 주어지지 않았습니다." })
+        }
+
+        const user = await Users.findOne({ userName: requestedUserName });
+
+        if (user == null) {
+            // Translation: ID can be used
+            return res.send.json({ message: "사용가능한 아이디입니다." })
+        } else {
+            // Translation: ID cannot be used
+            return res.send.json({ message: "이미 사용중인 아이디입니다. "})
+        }
         
     } catch (err) {
         console.error(err);
@@ -131,7 +174,27 @@ router.get("/prospective/:program", async (req, res) => {
  */
 router.post("/login", async (req, res) => {
     try {
-        
+        initializePassport(
+            passport, 
+            email => Users.findOne({ email: email })
+        )
+        passport.authenticate('local', { session: false }, (err, user, info) => {
+            if (err || !user) {
+                return res.status(400).json({
+                    message: info ? info.message : '로그인에 실패하였습니다.',
+                });
+            }
+    
+            req.login(user, { session: false }, (err) => {
+                if (err) {
+                    res.send(err);
+                }
+    
+                const token = jwt.sign({ id: user.id, email: user.email }, jwtSecret);
+                return res.json({ token });
+            });
+        })(req, res);
+
     } catch (err) {
         console.error(err);
         // Translation: An internal server error has occured
@@ -148,8 +211,63 @@ router.post("/login", async (req, res) => {
  * @return {object} 403 - Prohibitted
  * @return {object} 500 - Internal server error
  */
-router.post("/", async (req, res) => {
+router.post("/register", async (req, res) => {
     try {
+        const email = req.body.email;
+        const password = await bcrypt.hash(req.body.password, 10);
+        const userName = req.body.userName;
+        const userType = req.body.userType;
+
+        if (!email || !password || !userName || !userType) {
+            // Translation: Registeration requires: email, password, name, and account type.
+            return res.status(400).json({ error: "회원가입을 위해서는 다음 정보가 필요합니다: 이메일, 암호, 이름, 계정종류" });
+        }
+
+        if (req.body.password.length <= 8) {
+            return res.status(400).json({ error: "비밀번호는 최소한 8자리 이상이어야 합니다."})
+        }
+
+        const isAdmin = req.body.admin;
+
+        if(isAdmin == true) {
+            return res.status(403).json({ error: "관리자 계정 생성은 금지되어 있습니다." });
+        }
+
+        const existingAccount = await Users.findOne({ email: email });
+
+        if (existingAccount) {
+            // Translation: The following email is already registered.
+            return res.status(409).json({ error: "이미 가입된 이메일입니다."})
+        }
+
+        let userAccount;
+
+        switch (userType) {
+            case 'normal':
+                userAccount = new Users({
+                    email: email,
+                    password: password,
+                    userName: userName
+                });
+                break;
+            case 'prospective':
+                userAccount = new ProspectiveStudents({
+                    email: email,
+                    password: password,
+                    userName: userName
+                });
+            case 'student':
+                userAccount = new UniversityStudents({
+                    email: email,
+                    password: password,
+                    userName: userName
+                })
+        }
+
+        await userAccount.save();
+        // Translation: Account created
+        return res.status(201).json({ message: "회원가입에 성공하였습니다."})
+
         
     } catch (err) {
         console.error(err);

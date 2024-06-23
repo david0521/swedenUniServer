@@ -1,16 +1,27 @@
 const express = require('express');
+const session = require('express-session');
+const passport = require('passport');
 const mongoose = require("mongoose")
 const cors = require("cors");
 const UniversityController = require("./controllers/university-controller");
 const ProgramController = require("./controllers/programs-controller");
+const UserController = require("./controllers/user-controller");
 const app = express();
 require('dotenv').config()
 app.use(express.json());
 app.use(cors());
 
 const mongoURI = process.env.MONGODB_URI;
+const jwtSecret = process.env.JWT_SECRET;
 const port = 3000;
 
+app.use(session({
+  secret: jwtSecret,
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use(passport.initialize());
 
 // Connect to MongoDB
 mongoose
@@ -33,6 +44,7 @@ app.get('/api', (req, res) => {
 
 app.use("/api/universities", UniversityController)
 app.use("/api/programs", ProgramController);
+app.use("/api/users", UserController);
 
 app.listen(port, function (err) {
   if (err) throw err;

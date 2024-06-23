@@ -14,7 +14,6 @@ const prospectiveStudentSchema = new Schema({
     meritPoint: {
         type: Number,
         required: false,
-
     },
     prerequisite: [{
         type: String,
