@@ -52,7 +52,7 @@ const verifyJWTToken = (token) => {
         let decodedToken = jwt.verify(token, jwtSecret);
         return {
             error: false,
-            decoded: decoded
+            decoded: decodedToken
         }
     } catch (err) {
         console.log(err);

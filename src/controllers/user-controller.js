@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const initializePassport = require('../../passport-config.js');
-const { createResetToken } = require('../services/resettoken.service.js');
+const { createResetToken, verifyJWTToken } = require('../services/resettoken.service.js');
 const { sendResetLink } = require('../services/email.service.js');
 
 
@@ -12,6 +12,7 @@ const ProspectiveStudents = require("../schemas/prospectiveStudent.js");
 const UniversityStudents = require("../schemas/universityStudent.js");
 const University = require("../schemas/university.js");
 const Program = require("../schemas/program.js");
+const ResetToken = require("../schemas/resetToken.js");
 
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -315,7 +316,7 @@ router.post("/resetPassword/emailRequest", async (req, res) => {
 });
 
 /**
- * Post /resetPassword/emailVerify
+ * Post /resetPassword
  * @summary Change password of a user.
  * @tags users
  * @return {object} 200 - Success response
@@ -323,25 +324,35 @@ router.post("/resetPassword/emailRequest", async (req, res) => {
  * @return {object} 404 - Student not found
  * @return {object} 500 - Internal server error
  */
-router.post("/resetPassword/emailRequest", async (req, res) => {
+router.post("/resetPassword", async (req, res) => {
     try {
-        const userEmail = req.body.email;
+        const resetToken = req.body.token;
+        const newPassword = req.body.newPassword
 
-        if (!userEmail) {
-            // Avoid malicious attackers from figuring out that the following email is registered in the system.
-            res.status(200).json({ message: "해당 이메일 주소로 메일이 발송되었습니다." })
+        // Verify if the token is valid
+        const {error, decoded} = verifyJWTToken(resetToken);
+        if (error) {
+            return res.status(400).json({ error: "만료되거나 유효하지 않은 인증서입니다." });
+        }
+
+        const user = await Users.findById(decoded.user.id);
+
+        if (!user) {
+            res.status(400).json({ error: "존재하지 않는 회원입니다." });
+        }
+
+        else if (newPassword.length < 8) {
+            return res.status(400).json({ error: "비밀번호는 8자리 이상이어야합니다." })
         }
 
         else {
-            const { resetToken, error } = await createResetToken(userEmail);
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-            if (error) {
-                return res.status(400).json({ error: "메일 발송에 문제가 발생하였습니다." })
-            } else {
-                await sendResetLink({ tokenString: resetToken, email: userEmail });
-                res.status(200).json({ message: "해당 이메일 주소로 메일이 발송되었습니다." })
-            }
-        }
+            user.password = hashedPassword;
+            await user.save();
+
+            res.status(200).json({ message: "성공적으로 변경하였습니다." })
+        }        
     } catch (err) {
         console.error(err)
         // Translation: An internal server error has occured
