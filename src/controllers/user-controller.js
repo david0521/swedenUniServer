@@ -431,46 +431,48 @@ router.post("/:id/universities", async (req, res) => {
 });
 
 /**
- * Patch /users/{id}
- * @summary Modifies user information
+ * Post /modifyInfo/meritPoint
+ * @summary Add universities that a prospective student is interested in
  * @tags users
- * @return {object} 200 - Modified
- * @return {object} 401 - TODO: Not Authorized
- * @return {object} 403 - TODO: Forbidden (Regular user --> Admin)
- * @return {object} 404 - User not found
+ * @return {object} 200 - Success response
+ * @return {object} 403 - Not a prospective student
+ * @return {object} 404 - Student not found
+ * @return {object} 500 - Internal server error
  */
-router.patch("/:id", async (req, res) => {
+router.post("/modify/meritPoint/:id", async (req, res) => {
     try {
-        const user = await Users.findById(req.params.id);
+        const userId = req.params.id;
+        const meritPoint = req.body.meritPoint;
+
+        const user = await Users.findById(userId);
+
+        console.log(userId)
 
         if (!user) {
-            // Translation: User with the following ID does not exist
-            return res.status(404).json({ error: "다음 ID로 등록된 회원은 존재하지 않습니다." });
+            res.status(404).json({ error: "존재하지 않는 회원입니다." })
         }
-        
-        const oldInfo = user.toObject();
-        const newInfo = req.body;
 
-        delete oldInfo._id;
-        delete newInfo._id;
+        else if (meritPoint > 22.5 || meritPoint < 0) {
+            res.status(400).json({ error: "Merit point는 반드시 0점에서 22.5점사이입니다."})
+        }
 
-        console.log(oldInfo);
-        console.log(newInfo);
+        else if (user.__t != 'prospectiveStudent') {
+            console.log(user.__t)
+            res.status(403).json({ error: "사용할 수 없는 기능입니다." });
+        }
 
-        await Users.findByIdAndUpdate(req.params.id, { ...oldInfo, ...newInfo });
+        else {
+            user.meritPoint = meritPoint;
+            user.save();
+            res.status(200).json({ message: "성공적으로 변경하였습니다." });
+        }
 
-        return res.status(200).send(await Users.findById(req.params.id))
-
-        // TODO:
-        // Create a method to migrate between accounts (Automatically delete information not necessary)
     } catch (err) {
         console.error(err)
         // Translation: An internal server error has occured
         return res.status(500).json({ error: "시스템상 오류가 발생하였습니다."})
     }
-
-})
-
+});
 
 /**
  * Delete /users/{id}

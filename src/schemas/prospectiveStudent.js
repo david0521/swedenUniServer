@@ -13,7 +13,8 @@ const Universities = require("./university")
 const prospectiveStudentSchema = new Schema({
     meritPoint: {
         type: Number,
-        required: false,
+        default: 0
+
     },
     prerequisite: [{
         type: String,
