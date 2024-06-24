@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const initializePassport = require('../../passport-config.js');
+const { createResetToken } = require('../services/resettoken.service.js');
+const { sendResetLink } = require('../services/email.service.js');
 
 
 const Users = require("../schemas/user.js");
@@ -278,6 +280,76 @@ router.post("/register", async (req, res) => {
 });
 
 /**
+ * Post /resetPassword/emailRequest
+ * @summary Change password of a user.
+ * @tags users
+ * @return {object} 200 - Success response
+ * @return {object} 403 - Not a prospective student
+ * @return {object} 404 - Student not found
+ * @return {object} 500 - Internal server error
+ */
+router.post("/resetPassword/emailRequest", async (req, res) => {
+    try {
+        const userEmail = req.body.email;
+
+        if (!userEmail) {
+            // Avoid malicious attackers from figuring out that the following email is registered in the system.
+            res.status(200).json({ message: "해당 이메일 주소로 메일이 발송되었습니다." })
+        }
+
+        else {
+            const { resetToken, error } = await createResetToken(userEmail);
+
+            if (error) {
+                return res.status(400).json({ error: "메일 발송에 문제가 발생하였습니다." })
+            } else {
+                await sendResetLink({ resetToken: resetToken, email: userEmail });
+                res.status(200).json({ message: "해당 이메일 주소로 메일이 발송되었습니다." })
+            }
+        }
+    } catch (err) {
+        console.error(err)
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다."})
+    }
+});
+
+/**
+ * Post /resetPassword/emailVerify
+ * @summary Change password of a user.
+ * @tags users
+ * @return {object} 200 - Success response
+ * @return {object} 403 - Not a prospective student
+ * @return {object} 404 - Student not found
+ * @return {object} 500 - Internal server error
+ */
+router.post("/resetPassword/emailRequest", async (req, res) => {
+    try {
+        const userEmail = req.body.email;
+
+        if (!userEmail) {
+            // Avoid malicious attackers from figuring out that the following email is registered in the system.
+            res.status(200).json({ message: "해당 이메일 주소로 메일이 발송되었습니다." })
+        }
+
+        else {
+            const { resetToken, error } = await createResetToken(userEmail);
+
+            if (error) {
+                return res.status(400).json({ error: "메일 발송에 문제가 발생하였습니다." })
+            } else {
+                await sendResetLink({ tokenString: resetToken, email: userEmail });
+                res.status(200).json({ message: "해당 이메일 주소로 메일이 발송되었습니다." })
+            }
+        }
+    } catch (err) {
+        console.error(err)
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다."})
+    }
+});
+
+/**
  * Post /{id}/programs
  * @summary Add programs that a prospective student is interested in
  * @tags users
@@ -339,7 +411,7 @@ router.post("/:id/universities", async (req, res) => {
             await prospective.save();
             res.status(200).json({ message: "성공적으로 등록하였습니다." })
         } 
-               
+
     } catch (err) {
         console.error(err)
         // Translation: An internal server error has occured
