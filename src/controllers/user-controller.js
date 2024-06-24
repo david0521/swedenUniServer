@@ -278,6 +278,76 @@ router.post("/register", async (req, res) => {
 });
 
 /**
+ * Post /{id}/programs
+ * @summary Add programs that a prospective student is interested in
+ * @tags users
+ * @return {object} 200 - Success response
+ * @return {object} 403 - Not a prospective student
+ * @return {object} 404 - Student not found
+ * @return {object} 500 - Internal server error
+ */
+router.post("/:id/programs", async (req, res) => {
+    try {
+        const prospective = await Users.findById(req.params.id);
+        const programIds = req.body.programs;
+
+        const programs = await Program.find({ _id: { $in:programIds }})
+
+        if (!prospective) {
+            return res.status(404).json({ error: "존재하지 않는 학생입니다." })
+        }
+        else if (prospective.__t != 'prospectiveStudent') {
+            return res.status(403).json({ error: "이 기능을 사용할실 수 없습니다." })
+        }
+        else {
+            prospective.interestedPrograms.push(...programs);
+            await prospective.save();
+            res.status(200).json({ message: "성공적으로 등록하였습니다." })
+        }
+
+    } catch (err) {
+        console.error(err)
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다."})
+    }
+});
+
+/**
+ * Post /{id}/universities
+ * @summary Add universities that a prospective student is interested in
+ * @tags users
+ * @return {object} 200 - Success response
+ * @return {object} 403 - Not a prospective student
+ * @return {object} 404 - Student not found
+ * @return {object} 500 - Internal server error
+ */
+router.post("/:id/universities", async (req, res) => {
+    try {
+        const prospective = await Users.findById(req.params.id);
+        const universityIds = req.body.universities;
+
+        const universities = await University.find({ _id: { $in:universityIds }})
+
+        if (!prospective) {
+            return res.status(404).json({ error: "존재하지 않는 학생입니다." })
+        }
+        else if (prospective.__t != 'prospectiveStudent') {
+            return res.status(403).json({ error: "이 기능을 사용할실 수 없습니다." })
+        }
+        else {
+            prospective.interestedUniversities.push(...universities);
+            await prospective.save();
+            res.status(200).json({ message: "성공적으로 등록하였습니다." })
+        } 
+               
+    } catch (err) {
+        console.error(err)
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다."})
+    }
+});
+
+/**
  * Patch /users/{id}
  * @summary Modifies user information
  * @tags users
@@ -344,6 +414,79 @@ router.delete("/:id", async (req, res) => {
         console.error(err);
         // Translation: An internal server error has occured
         return res.status(500).json({ error: "시스템상 문제가 발생하였습니다." });
+    }
+});
+
+/**
+ * Delete /{id}/programs
+ * @summary Remove programs that a prospective student is no longer interested in
+ * @tags users
+ * @return {object} 200 - Success response
+ * @return {object} 403 - Not a prospective student
+ * @return {object} 404 - Student not found
+ * @return {object} 500 - Internal server error
+ */
+router.delete("/:id/programs", async (req, res) => {
+    try {
+        const prospective = await Users.findById(req.params.id);
+        const programIds = req.body.programs;
+
+        if (!prospective) {
+            return res.status(404).json({ error: "존재하지 않는 학생입니다." })
+        }
+
+        else if (prospective.__t != 'prospectiveStudent') {
+            return res.status(403).json({ error: "이 기능을 사용할실 수 없습니다." })
+        }
+        
+        else {
+            prospective.interestedPrograms = prospective.interestedPrograms.filter(
+                programId => !programIds.includes(programId.toString())
+            );
+            await prospective.save();
+            res.status(200).json({ message: "성공적으로 삭제하였습니다." })
+        }        
+    } catch (err) {
+        console.error(err)
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다."})
+    }
+});
+
+/**
+ * Delete /{id}/universities
+ * @summary Remove universities that a prospective student is no longer interested in
+ * @tags users
+ * @return {object} 200 - Success response
+ * @return {object} 403 - Not a prospective student
+ * @return {object} 404 - Student not found
+ * @return {object} 500 - Internal server error
+ */
+router.delete("/:id/universities", async (req, res) => {
+    try {
+        const prospective = await Users.findById(req.params.id);
+        const universityIds = req.body.universities;
+
+        if (!prospective) {
+            return res.status(404).json({ error: "존재하지 않는 학생입니다." })
+        }
+
+        else if (prospective.__t != 'prospectiveStudent') {
+            return res.status(403).json({ error: "이 기능을 사용할실 수 없습니다." })
+        }
+        
+        
+        else {
+            prospective.interestedUniversities = prospective.interestedUniversities.filter(
+                universityId => !universityIds.includes(universityId.toString())
+            );
+            await prospective.save();
+            res.status(200).json({ message: "성공적으로 삭제하였습니다." })
+        }        
+    } catch (err) {
+        console.error(err)
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다."})
     }
 });
 
