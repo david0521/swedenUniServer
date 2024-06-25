@@ -848,7 +848,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"meritPoint\": 20\r\n}",
+					"raw": "{\r\n    \"meritPoint\": \"20\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
