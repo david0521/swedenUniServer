@@ -41,7 +41,7 @@ jobs:
         run: |
           touch .env
           echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env
-          echo "JWT_SECRET_URI=${{ secrets.JWT_SECRET }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
           echo "MAIL_PORT=${{ secrets.MAIL_PORT }}" >> .env
           echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> .env
           echo "HOST_PASSWORD=${{ secrets.HOST_PASSWORD }}" >> .env
