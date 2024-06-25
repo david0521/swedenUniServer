@@ -5,6 +5,7 @@ const passport = require('passport');
 const initializePassport = require('../../passport-config.js');
 const { createResetToken, verifyJWTToken } = require('../services/resettoken.service.js');
 const { sendResetLink } = require('../services/email.service.js');
+const { encryptionHandler } = require('../services/encryption.service.js');
 
 
 const Users = require("../schemas/user.js");
@@ -18,6 +19,8 @@ const jwtSecret = process.env.JWT_SECRET;
 
 require('dotenv').config()
 
+// Declare encryption handler to encrypt, and decrypt confidential data.
+const securityHandler = new encryptionHandler();
 
 /**
  * Get /users
@@ -187,7 +190,6 @@ router.post("/login", async (req, res) => {
                 if (err) {
                     res.send(err);
                 }
-    
                 const token = jwt.sign({ id: user.id, email: user.email, exp: Math.floor(Date.now() / 1000) + (12 * 60 * 60)}, jwtSecret);
                 return res.json({ token });
             });
@@ -452,8 +454,6 @@ router.post("/modify/:id/meritPoint", async (req, res) => {
 
         const user = await Users.findById(userId);
 
-        console.log(userId)
-
         if (!user) {
             res.status(404).json({ error: "존재하지 않는 회원입니다." })
         }
@@ -468,7 +468,8 @@ router.post("/modify/:id/meritPoint", async (req, res) => {
         }
 
         else {
-            user.meritPoint = meritPoint;
+            const securedMerit = securityHandler.encrypt(meritPoint);
+            user.meritPoint = securedMerit;
             user.save();
             res.status(200).json({ message: "성공적으로 변경하였습니다." });
         }
