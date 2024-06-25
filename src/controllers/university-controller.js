@@ -144,20 +144,22 @@ router.patch("/:id", async (req, res) => {
         if (!existingUniversity) {
             // Translation: University with the following ID does not exist
             return res.status(404).json({ error: "다음 ID로 등록된 대학교는 시스템에 존재하지 않습니다." });
+        } else {
+            const oldInfo = existingUniversity.toObject();
+            const newInfo = req.body;
+
+            delete oldInfo._id;
+            delete newInfo._id;
+
+            console.log(oldInfo);
+            console.log(newInfo);
+
+            await Universities.findByIdAndUpdate(req.params.id, { ...oldInfo, ...newInfo});
+
+            return res.status(200).send(await Universities.findById(req.params.id))
+
         }
         
-        const oldInfo = existingUniversity.toObject();
-        const newInfo = req.body;
-
-        delete oldInfo._id;
-        delete newInfo._id;
-
-        console.log(oldInfo);
-        console.log(newInfo);
-
-        await Universities.findByIdAndUpdate(req.params.id, { ...oldInfo, ...newInfo});
-
-        return res.status(200).send(await Universities.findById(req.params.id))
     } catch (err) {
         console.error(err)
         // Translation: An internal server error has occured
