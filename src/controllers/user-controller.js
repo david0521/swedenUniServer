@@ -218,6 +218,7 @@ router.post("/register", async (req, res) => {
 
         if (!email || !password || !userName || !userType) {
             // Translation: Registeration requires: email, password, name, and account type.
+            console.log(req.body.email)
             return res.status(400).json({ error: "회원가입을 위해서는 다음 정보가 필요합니다: 이메일, 암호, 유저네임, 계정종류" });
         }
 
@@ -269,8 +270,12 @@ router.post("/register", async (req, res) => {
         }
 
         await userAccount.save();
+        const userId = userAccount._id
         // Translation: Account created
-        return res.status(201).json({ message: "회원가입에 성공하였습니다."})
+        return res.status(201).json({ 
+            message: "회원가입에 성공하였습니다.",
+            id: userId
+        })
 
         
     } catch (err) {
@@ -454,7 +459,7 @@ router.post("/modify/:id/meritPoint", async (req, res) => {
         }
 
         else if (meritPoint > 22.5 || meritPoint < 0) {
-            res.status(400).json({ error: "Merit point는 반드시 0점에서 22.5점사이입니다."})
+            res.status(400).json({ error: "Merit point는 반드시 0점에서 22.5점 사이입니다."})
         }
 
         else if (user.__t != 'prospectiveStudent') {
@@ -490,22 +495,20 @@ router.post("/modify/:id/prerequisites", async (req, res) => {
         const prerequisites = req.body.prerequisites;
 
         const user = await Users.findById(userId);
+        const invalidPrerequisites = prerequisites.filter(p => !["Math3B", "Math4", "Math5", "Physics1A", "Physics2", "Chemistry1", "Chemistry2", "Biology1", "Biology2", "Science2", "Civics1B", "History1B", "SpecialRequirement"].includes(p));
 
         console.log(userId)
 
         if (!user) {
             res.status(404).json({ error: "존재하지 않는 회원입니다." })
         }
-
-        const invalidPrerequisites = prerequisites.filter(p => !["Math3B", "Math4", "Math5", "Physics1A", "Physics2", "Chemistry1", "Chemistry2", "Biology1", "Biology2", "Science2", "Civics1B", "History1B", "SpecialRequirement"].includes(p));
         
-        if (invalidPrerequisites.length > 0) {
+        else if (invalidPrerequisites.length > 0) {
             // Translation: Invalid prerquisite(s)
             return res.status(400).json({ error: "존재하지 않는 자격요건: " + invalidPrerequisites.join(", ") });
         }
 
         else if (user.__t != 'prospectiveStudent') {
-            console.log(user.__t)
             res.status(403).json({ error: "사용할 수 없는 기능입니다." });
         }
 

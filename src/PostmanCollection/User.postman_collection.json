@@ -1,0 +1,1495 @@
+{
+	"info": {
+		"_postman_id": "146b084f-debd-4c9f-bde9-fd7983bfdbd1",
+		"name": "User",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "29410530"
+	},
+	"item": [
+		{
+			"name": "Get all users",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"userName\": \"Dvid\",\r\n    \"email\": \"davdhg521@gmail.com\",\r\n    \"password\": \"9a\",\r\n    \"userType\": \"student\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/all"
+			},
+			"response": []
+		},
+		{
+			"name": "Get User ID 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"userName\": \"Dvid\",\r\n    \"email\": \"davdhg521@gmail.com\",\r\n    \"password\": \"9a\",\r\n    \"userType\": \"student\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/id/6679fc18824af438b7cabff9"
+			},
+			"response": []
+		},
+		{
+			"name": "Get User ID 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"시스템에 등록되지 않은 회원입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/id/66786c912214f467ae6f508a"
+			},
+			"response": []
+		},
+		{
+			"name": "Get User By Username (Used)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"이미 사용중인 아이디입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/userName/David"
+			},
+			"response": []
+		},
+		{
+			"name": "Get User By Username (Available)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Response message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"사용가능한 아이디입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/userName/testName"
+			},
+			"response": []
+		},
+		{
+			"name": "Get University Interest",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/users/prospective/university?university=University%20of%20Gothenburg",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"users",
+						"prospective",
+						"university"
+					],
+					"query": [
+						{
+							"key": "university",
+							"value": "University%20of%20Gothenburg"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Program Interest",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/users/prospective/program?program=Software%20Engineering%20and%20Management",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"users",
+						"prospective",
+						"program"
+					],
+					"query": [
+						{
+							"key": "program",
+							"value": "Software%20Engineering%20and%20Management"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Account 201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"회원가입에 성공하였습니다.\");\r",
+							"})\r",
+							"\r",
+							"var response = pm.response.json();\r",
+							"\r",
+							"pm.globals.set(\"deleteUserId\", response.id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var randomEmail = pm.variables.replaceIn('{{$randomEmail}}');\r",
+							"pm.globals.set(\"randomEmail\", randomEmail);\r",
+							"console.log(\"Generated random email address: \" + randomEmail);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"userName\": \"test\",\r\n    \"email\": \"{{randomEmail}}\",\r\n    \"password\": \"123456789\",\r\n    \"userType\": \"prospective\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/register"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Account 400 (Invalid Type)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"존재하지 않는 계정 유형입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"userName\": \"Test\",\r\n    \"email\": \"test3@test.com\",\r\n    \"password\": \"123456789\",\r\n    \"userType\": \"test\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/register"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Account 400 (Missing Info)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"회원가입을 위해서는 다음 정보가 필요합니다: 이메일, 암호, 유저네임, 계정종류\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"userName\": \"Test\",\r\n    \"email\": \"test@test.com\",\r\n    \"password\": \"123456789\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/register"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Account 400 (Short Password)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"비밀번호는 최소한 8자리 이상이어야 합니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"userName\": \"Test\",\r\n    \"email\": \"test@test.com\",\r\n    \"password\": \"123456\",\r\n    \"userType\": \"student\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/register"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Account 403 (Admin Trial)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"관리자 계정 생성은 금지되어 있습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"userName\": \"Test\",\r\n    \"email\": \"test@test.com\",\r\n    \"password\": \"12345678\",\r\n    \"userType\": \"student\",\r\n    \"admin\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/register"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Account 409",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 409\", function () {\r",
+							"    pm.response.to.have.status(409);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"이미 가입된 이메일입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"userName\": \"Test\",\r\n    \"email\": \"test@test.com\",\r\n    \"password\": \"12345678\",\r\n    \"userType\": \"student\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/register"
+			},
+			"response": []
+		},
+		{
+			"name": "Login 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(\"Using random email address for login: \" + pm.environment.get(\"randomEmail\"));\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"{{randomEmail}}\",\r\n    \"password\": \"123456789\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Login 400 (Wrong Email)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"존재하지 않는 계정입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"tes@test.com\",\r\n    \"password\": \"123456789\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Login 400 (Wrong Password)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"잘못된 비밀번호입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"test@test.com\",\r\n    \"password\": \"23456789\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Change Password Email 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Sucess message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"해당 이메일 주소로 메일이 발송되었습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"davidhong521@gmail.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/resetPassword/emailRequest"
+			},
+			"response": []
+		},
+		{
+			"name": "Reset Password 400 (Expired)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"만료되거나 유효하지 않은 인증서입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjY3OTZjNGViYjA0MTU4ZWRlZjhmZThiIn0sImlhdCI6MTcxOTI2NzM0NywiZXhwIjoxNzE5MjY4NTQ3fQ.Q5N-m4QeJjFv9u5H3nXvbQCQJPHwM5sqXTVI8ORh94\",\r\n    \"newPassword\": \"00000000\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/resetPassword"
+			},
+			"response": []
+		},
+		{
+			"name": "Add Program of Interest 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"성공적으로 등록하였습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\",\r\n        \"65fc0263a13ed67a8e461629\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/6679fc18824af438b7cabff9/programs"
+			},
+			"response": []
+		},
+		{
+			"name": "Add Program of Interest 403",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"이 기능을 사용할실 수 없습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\",\r\n        \"65fc0263a13ed67a8e461629\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/6679378221c89e9c0c32b7b4/programs"
+			},
+			"response": []
+		},
+		{
+			"name": "Add Program of Interest 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"존재하지 않는 학생입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\",\r\n        \"65fc0263a13ed67a8e461629\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/6679378221c89d9c0c32b7b4/programs"
+			},
+			"response": []
+		},
+		{
+			"name": "Add University of Interest 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Success message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"성공적으로 등록하였습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"universities\": [\r\n        \"65a83ef98dee45bb7cc34d13\",\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/66792b2953dfc9253d6aa04c/universities"
+			},
+			"response": []
+		},
+		{
+			"name": "Add University of Interest 403",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"이 기능을 사용할실 수 없습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"universities\": [\r\n        \"65a83ef98dee45bb7cc34d13\",\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/6679378221c89e9c0c32b7b4/universities"
+			},
+			"response": []
+		},
+		{
+			"name": "Add University of Interest 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"존재하지 않는 학생입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"universities\": [\r\n        \"65a83ef98dee45bb7cc34d13\",\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/6678378221c89e9c0c32b7b4/universities"
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Merit Point 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"성공적으로 변경하였습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"meritPoint\": 20\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/modify/6679fc18824af438b7cabff9/meritPoint"
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Merit Point 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"존재하지 않는 회원입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"meritPoint\": 20\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/modify/6679fc18814af438b7cabff9/meritPoint"
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Merit Point 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"Merit point는 반드시 0점에서 22.5점 사이입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"meritPoint\": 25\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/modify/6679fc18824af438b7cabff9/meritPoint"
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Merit Point 403",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"사용할 수 없는 기능입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"meritPoint\": 20\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/modify/6679378221c89e9c0c32b7b4/meritPoint"
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Prerequisite 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Success message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"성공적으로 변경하였습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"prerequisites\": [\r\n        \"Math3B\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/modify/6679fc18824af438b7cabff9/prerequisites"
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Prerequisite 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"존재하지 않는 회원입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"prerequisites\": [\r\n        \"Math3B\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/modify/6679fc18824bf438b7cabff9/prerequisites"
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Prerequisite 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"존재하지 않는 자격요건:\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"prerequisites\": [\r\n        \"Magic\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/modify/6679fc18824af438b7cabff9/prerequisites"
+			},
+			"response": []
+		},
+		{
+			"name": "Modify Prerequisite 403",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"사용할 수 없는 기능입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"prerequisites\": [\r\n        \"Math3B\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/modify/6679378221c89e9c0c32b7b4/prerequisites"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"성공적으로 삭제하였습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": "{{host}}/users/{{deleteUserId}}"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User ID 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"다음 ID로 등록된 회원이 존재하지 않습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"interestedPrograms\": [\r\n        \"65fb79e7a459d4313988b392\",\r\n        \"65fc0263a13ed67a8e461629\"\r\n    ],\r\n    \"interestedUniversities\": [\r\n        \"65a83ef98dee45bb7cc34d13\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/667892ae3259fc26445faabd"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete University of Interest 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"성공적으로 삭제하였습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"universities\": [\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/66792b2953dfc9253d6aa04c/universities"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete University of Interest 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"존재하지 않는 학생입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"universities\": [\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/66792b2953cfc9253d6aa04c/universities"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete University of Interest 403",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"이 기능을 사용할실 수 없습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"universities\": [\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/6679378221c89e9c0c32b7b4/universities"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Program of Interest 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Success message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"성공적으로 삭제하였습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/66792b2953dfc9253d6aa04c/programs"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Program of Interest 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"존재하지 않는 학생입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"universities\": [\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/66792b2953cfc9253d6aa04c/programs"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Program of Interest 403",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {\r",
+							"    pm.response.to.have.status(403);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"이 기능을 사용할실 수 없습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"universities\": [\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/6679378221c89e9c0c32b7b4/programs"
+			},
+			"response": []
+		}
+	]
+}

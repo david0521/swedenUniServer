@@ -11,10 +11,22 @@
 			"value": "65a83ef98dee45bb7cc34d13",
 			"type": "default",
 			"enabled": true
+		},
+		{
+			"key": "randomEmail",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "deleteUserId",
+			"value": "",
+			"type": "default",
+			"enabled": true
 		}
 	],
 	"name": "Globals",
 	"_postman_variable_scope": "globals",
-	"_postman_exported_at": "2024-06-17T10:54:48.981Z",
+	"_postman_exported_at": "2024-06-25T10:53:53.921Z",
 	"_postman_exported_using": "Postman/10.24.26"
 }
