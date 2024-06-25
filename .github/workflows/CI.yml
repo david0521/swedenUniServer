@@ -74,7 +74,7 @@ jobs:
       - name: Run User Tests
         run: |
           cd src/PostmanCollection
-          newman run "User.postman_collection.json" -e "workspace.postman_globals.json" --global-var "randomEmail=$(openssl rand -hex 12)" -r cli,htmlextra --reporter-htmlextra-export ../../TestArtifacts/UserReport.html
+          newman run "User.postman_collection.json" -e "workspace.postman_globals.json" -r cli,htmlextra --reporter-htmlextra-export ../../TestArtifacts/UserReport.html
 
       - name: Output Results
         if: always()

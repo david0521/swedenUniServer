@@ -274,59 +274,6 @@
 			"response": []
 		},
 		{
-			"name": "Create Account 201",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 201\", function () {\r",
-							"    pm.response.to.have.status(201);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Error message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"회원가입에 성공하였습니다.\");\r",
-							"})\r",
-							"\r",
-							"var response = pm.response.json();\r",
-							"\r",
-							"pm.globals.set(\"deleteUserId\", response.id);"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"var randomEmail = pm.variables.replaceIn('{{$randomEmail}}');\r",
-							"pm.globals.set(\"randomEmail\", randomEmail);\r",
-							"console.log(\"Generated random email address: \" + randomEmail);\r",
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"userName\": \"test\",\r\n    \"email\": \"{{randomEmail}}\",\r\n    \"password\": \"123456789\",\r\n    \"userType\": \"prospective\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "{{host}}/users/register"
-			},
-			"response": []
-		},
-		{
 			"name": "Create Account 400 (Invalid Type)",
 			"event": [
 				{
@@ -503,51 +450,6 @@
 					}
 				},
 				"url": "{{host}}/users/register"
-			},
-			"response": []
-		},
-		{
-			"name": "Login 200",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"console.log(\"Using random email address for login: \" + pm.environment.get(\"randomEmail\"));\r",
-							"\r",
-							"\r",
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"{{randomEmail}}\",\r\n    \"password\": \"123456789\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "{{host}}/users/login"
 			},
 			"response": []
 		},
@@ -1213,29 +1115,6 @@
 					}
 				},
 				"url": "{{host}}/users/modify/6679378221c89e9c0c32b7b4/prerequisites"
-			},
-			"response": []
-		},
-		{
-			"name": "Delete User ID",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Error message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"성공적으로 삭제하였습니다.\");\r",
-							"})"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": "{{host}}/users/{{deleteUserId}}"
 			},
 			"response": []
 		},
