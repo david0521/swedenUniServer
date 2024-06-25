@@ -9,26 +9,35 @@ class encryptionHandler {
         const iv = crypto.randomBytes(16);
         const cipher = crypto.createCipheriv("aes-256-cbc", encryption, iv);
 
-        let encryptedData = cipher.update(data, "utf8", "hex");
-        encryptedData += cipher.final("hex");
-
-        return {
-            iv: iv.toString("hex"),
-            encryptedData
-        };
+        try {
+            let encryptedData = cipher.update(data, "utf8", "hex");
+            encryptedData += cipher.final("hex");
+    
+            return {
+                iv: iv.toString("hex"),
+                encryptedData
+            };
+        } catch (err) {
+            return err;
+        }
     }
 
     decrypt (data) {
-        const decipher = crypto.createDecipheriv(
-            "aes-256-cbc",
-            encryption,
-            Buffer.from(data.iv, "hex")
-        );
+        try {
+            const decipher = crypto.createDecipheriv(
+                "aes-256-cbc",
+                encryption,
+                Buffer.from(data.iv, "hex")
+            );
+    
+            let decryptedData = decipher.update(data.encryptedData, "hex", "utf-8");
+            decryptedData += decipher.final("utf-8");
+    
+            return decryptedData;
 
-        let decryptedData = decipher.update(data.encryptedData, "hex", "utf-8");
-        decryptedData += decipher.final("utf-8");
-
-        return decryptedData;
+        } catch (err) {
+            return err;
+        }
     }
 }
 
