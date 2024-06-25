@@ -39,12 +39,12 @@ jobs:
 
       - name: "Setup .env file"
         run: |
-          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env
-          echo "JWT_SECRET_URI=${{ secrets.JWT_SECRET }}" >> .env
-          echo "MAIL_PORT=${{ secrets.MAIL_PORT }}" >> .env
-          echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> .env
-          echo "HOST_PASSWORD=${{ secrets.HOST_PASSWORD }}" >> .env
-          echo "HOST_ID=${{ secrets.HOST_ID }}" >> .env
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env &&
+          echo "JWT_SECRET_URI=${{ secrets.JWT_SECRET }}" >> .env &&
+          echo "MAIL_PORT=${{ secrets.MAIL_PORT }}" >> .env &&
+          echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> .env &&
+          echo "HOST_PASSWORD=${{ secrets.HOST_PASSWORD }}" >> .env &&
+          echo "HOST_ID=${{ secrets.HOST_ID }}" >> .env &&
           echo "HOST_EMAIL=${{ secrets.HOST_EMAIL }}" >> .env
 
       # Install Newman globally
