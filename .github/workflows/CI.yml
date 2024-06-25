@@ -38,7 +38,16 @@ jobs:
         run: npm install
 
       - name: "Setup .env file"
-        run: echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env
+        run: |
+          touch .env
+          echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "MAIL_PORT=${{ secrets.MAIL_PORT }}" >> .env
+          echo "MAIL_HOST=${{ secrets.MAIL_HOST }}" >> .env
+          echo "HOST_PASSWORD=${{ secrets.HOST_PASSWORD }}" >> .env
+          echo "HOST_ID=${{ secrets.HOST_ID }}" >> .env
+          echo "HOST_EMAIL=${{ secrets.HOST_EMAIL }}" >> .env
+          cat .env
 
       # Install Newman globally
       - name: Newman Installation
@@ -56,13 +65,16 @@ jobs:
         run: |
           cd src/PostmanCollection
           newman run "University.postman_collection.json" -e "workspace.postman_globals.json" -r cli,htmlextra --reporter-htmlextra-export ../../TestArtifacts/UniversityReport.html
-        continue-on-error: true
 
       - name: Run Program Tests
         run: |
           cd src/PostmanCollection
           newman run "Program.postman_collection.json" -e "workspace.postman_globals.json" -r cli,htmlextra --reporter-htmlextra-export ../../TestArtifacts/ProgramReport.html
-        continue-on-error: true
+
+      - name: Run User Tests
+        run: |
+          cd src/PostmanCollection
+          newman run "User.postman_collection.json" -e "workspace.postman_globals.json" -r cli,htmlextra --reporter-htmlextra-export ../../TestArtifacts/UserReport.html
 
       - name: Output Results
         if: always()
