@@ -431,15 +431,16 @@ router.post("/:id/universities", async (req, res) => {
 });
 
 /**
- * Post /modifyInfo/meritPoint
- * @summary Add universities that a prospective student is interested in
+ * Post /modifyInfo/{id}/meritPoint
+ * @summary Modifies the merit point information of the user
  * @tags users
  * @return {object} 200 - Success response
+ * @return {object} 400 - Wrong merit point range
  * @return {object} 403 - Not a prospective student
  * @return {object} 404 - Student not found
  * @return {object} 500 - Internal server error
  */
-router.post("/modify/meritPoint/:id", async (req, res) => {
+router.post("/modify/:id/meritPoint", async (req, res) => {
     try {
         const userId = req.params.id;
         const meritPoint = req.body.meritPoint;
@@ -463,6 +464,53 @@ router.post("/modify/meritPoint/:id", async (req, res) => {
 
         else {
             user.meritPoint = meritPoint;
+            user.save();
+            res.status(200).json({ message: "성공적으로 변경하였습니다." });
+        }
+
+    } catch (err) {
+        console.error(err)
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다."})
+    }
+});
+
+/**
+ * Post /modifyInfo/{id}/prerequisites
+ * @summary Adds new prerequisite information to the user account
+ * @tags users
+ * @return {object} 200 - Success response
+ * @return {object} 403 - Not a prospective student
+ * @return {object} 404 - Student not found
+ * @return {object} 500 - Internal server error
+ */
+router.post("/modify/:id/prerequisites", async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const prerequisites = req.body.prerequisites;
+
+        const user = await Users.findById(userId);
+
+        console.log(userId)
+
+        if (!user) {
+            res.status(404).json({ error: "존재하지 않는 회원입니다." })
+        }
+
+        const invalidPrerequisites = prerequisites.filter(p => !["Math3B", "Math4", "Math5", "Physics1A", "Physics2", "Chemistry1", "Chemistry2", "Biology1", "Biology2", "Science2", "Civics1B", "History1B", "SpecialRequirement"].includes(p));
+        
+        if (invalidPrerequisites.length > 0) {
+            // Translation: Invalid prerquisite(s)
+            return res.status(400).json({ error: "존재하지 않는 자격요건: " + invalidPrerequisites.join(", ") });
+        }
+
+        else if (user.__t != 'prospectiveStudent') {
+            console.log(user.__t)
+            res.status(403).json({ error: "사용할 수 없는 기능입니다." });
+        }
+
+        else {
+            user.prerequisite = prerequisites;
             user.save();
             res.status(200).json({ message: "성공적으로 변경하였습니다." });
         }
