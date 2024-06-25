@@ -47,6 +47,7 @@ jobs:
           echo "HOST_PASSWORD=${{ secrets.HOST_PASSWORD }}" >> .env
           echo "HOST_ID=${{ secrets.HOST_ID }}" >> .env
           echo "HOST_EMAIL=${{ secrets.HOST_EMAIL }}" >> .env
+          echo "ENCRYPTION_SECRET=${{ secrets.ENCRYPTION_SECRET }}" >> .env
           cat .env
 
       # Install Newman globally
