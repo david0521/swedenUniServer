@@ -16,8 +16,8 @@
 						"exec": [
 							"if (pm.response.code === 200) {\r",
 							"    const response = pm.response.json();\r",
-							"    pm.globals.set(\"JWT\", response.token);\r",
-							"    pm.globals.set(\"refreshToken\", response.refreshToken);\r",
+							"    pm.environment.set(\"JWT\", response.token);\r",
+							"    pm.environment.set(\"refreshToken\", response.refreshToken);\r",
 							"}"
 						],
 						"type": "text/javascript",
@@ -50,7 +50,7 @@
 						"exec": [
 							"if (pm.response.code === 200) {\r",
 							"    const response = pm.response.json();\r",
-							"    pm.globals.set(\"JWT\", response.token);\r",
+							"    pm.environment.set(\"JWT\", response.token);\r",
 							"}"
 						],
 						"type": "text/javascript",
@@ -324,7 +324,7 @@
 							"})",
 							"",
 							"const response = pm.response.json();",
-							"pm.globals.set(\"deleteUni\", response.university._id);"
+							"pm.environment.set(\"deleteUni\", response.university._id);"
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -335,7 +335,7 @@
 					"script": {
 						"exec": [
 							"var randomUniName = pm.variables.replaceIn('{{$randomFirstName}}');\r",
-							"pm.globals.set(\"randomUniName\", randomUniName);"
+							"pm.environment.set(\"randomUniName\", randomUniName);"
 						],
 						"type": "text/javascript",
 						"packages": {}

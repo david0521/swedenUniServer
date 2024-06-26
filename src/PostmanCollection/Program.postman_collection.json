@@ -16,8 +16,8 @@
 						"exec": [
 							"if (pm.response.code === 200) {\r",
 							"    const response = pm.response.json();\r",
-							"    pm.globals.set(\"JWT\", response.token);\r",
-							"    pm.globals.set(\"refreshToken\", response.refreshToken);\r",
+							"    pm.environment.set(\"JWT\", response.token);\r",
+							"    pm.environment.set(\"refreshToken\", response.refreshToken);\r",
 							"}"
 						],
 						"type": "text/javascript",
@@ -50,7 +50,7 @@
 						"exec": [
 							"if (pm.response.code === 200) {\r",
 							"    const response = pm.response.json();\r",
-							"    pm.globals.set(\"JWT\", response.token);\r",
+							"    pm.environment.set(\"JWT\", response.token);\r",
 							"}"
 						],
 						"type": "text/javascript",
@@ -386,7 +386,7 @@
 							"})",
 							"",
 							"const response = pm.response.json();",
-							"pm.globals.set(\"deleteProgram\", response.program._id);"
+							"pm.environment.set(\"deleteProgram\", response.program._id);"
 						],
 						"type": "text/javascript",
 						"packages": {}
