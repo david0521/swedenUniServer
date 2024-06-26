@@ -28,6 +28,10 @@ const userSchema = new Schema({
     admin: {
         type: Boolean,
         default: false
+    },
+    refreshToken: {
+        type: String,
+        default: null
     }
 });
 

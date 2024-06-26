@@ -23,10 +23,40 @@
 			"value": "",
 			"type": "default",
 			"enabled": true
+		},
+		{
+			"key": "JWT",
+			"value": "",
+			"type": "secret",
+			"enabled": true
+		},
+		{
+			"key": "refreshToken",
+			"value": "",
+			"type": "secret",
+			"enabled": true
+		},
+		{
+			"key": "randomUniName",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "deleteUni",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "deleteProgram",
+			"value": "",
+			"type": "any",
+			"enabled": true
 		}
 	],
 	"name": "Globals",
 	"_postman_variable_scope": "globals",
-	"_postman_exported_at": "2024-06-25T10:53:53.921Z",
+	"_postman_exported_at": "2024-06-26T11:16:57.961Z",
 	"_postman_exported_using": "Postman/10.24.26"
 }

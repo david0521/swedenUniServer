@@ -7,13 +7,86 @@
 	},
 	"item": [
 		{
+			"name": "Login for test",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.globals.set(\"JWT\", response.token);\r",
+							"    pm.globals.set(\"refreshToken\", response.refreshToken);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"test4@test.com\",\r\n    \"password\": \"123456789\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh token test",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.globals.set(\"JWT\", response.token);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"refreshToken\": \"{{refreshToken}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/refreshToken"
+			},
+			"response": []
+		},
+		{
 			"name": "Get all users",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
 			},
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n\t\"userName\": \"Dvid\",\r\n    \"email\": \"davdhg521@gmail.com\",\r\n    \"password\": \"9a\",\r\n    \"userType\": \"student\"\r\n}",
@@ -48,7 +121,13 @@
 			},
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n\t\"userName\": \"Dvid\",\r\n    \"email\": \"davdhg521@gmail.com\",\r\n    \"password\": \"9a\",\r\n    \"userType\": \"student\"\r\n}",
@@ -87,7 +166,13 @@
 			},
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "",
@@ -274,6 +359,56 @@
 			"response": []
 		},
 		{
+			"name": "Create Account 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Success message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"회원가입에 성공하였습니다.\");\r",
+							"})\r",
+							"\r",
+							"var response = pm.response.json();\r",
+							"pm.globals.set(\"deleteUserId\", response.id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var randomEmail = pm.variables.replaceIn('{{$randomEmail}}');\r",
+							"pm.globals.set(\"randomEmail\", randomEmail);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"userName\": \"testUser\",\r\n    \"email\": \"{{randomEmail}}\",\r\n    \"password\": \"123456789\",\r\n    \"userType\": \"student\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/register"
+			},
+			"response": []
+		},
+		{
 			"name": "Create Account 400 (Invalid Type)",
 			"event": [
 				{
@@ -454,6 +589,38 @@
 			"response": []
 		},
 		{
+			"name": "Login 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"test@test.com\",\r\n    \"password\": \"123456789\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/login"
+			},
+			"response": []
+		},
+		{
 			"name": "Login 400 (Wrong Email)",
 			"event": [
 				{
@@ -623,7 +790,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\",\r\n        \"65fc0263a13ed67a8e461629\"\r\n    ]\r\n}",
@@ -660,7 +833,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\",\r\n        \"65fc0263a13ed67a8e461629\"\r\n    ]\r\n}",
@@ -697,7 +876,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\",\r\n        \"65fc0263a13ed67a8e461629\"\r\n    ]\r\n}",
@@ -734,7 +919,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"universities\": [\r\n        \"65a83ef98dee45bb7cc34d13\",\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
@@ -771,7 +962,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"universities\": [\r\n        \"65a83ef98dee45bb7cc34d13\",\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
@@ -808,7 +1005,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"universities\": [\r\n        \"65a83ef98dee45bb7cc34d13\",\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
@@ -845,7 +1048,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"meritPoint\": \"20\"\r\n}",
@@ -882,7 +1091,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"meritPoint\": 20\r\n}",
@@ -919,7 +1134,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"meritPoint\": 25\r\n}",
@@ -956,7 +1177,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"meritPoint\": 20\r\n}",
@@ -993,7 +1220,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"prerequisites\": [\r\n        \"Math3B\"\r\n    ]\r\n}",
@@ -1030,7 +1263,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"prerequisites\": [\r\n        \"Math3B\"\r\n    ]\r\n}",
@@ -1067,7 +1306,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"prerequisites\": [\r\n        \"Magic\"\r\n    ]\r\n}",
@@ -1104,7 +1349,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"prerequisites\": [\r\n        \"Math3B\"\r\n    ]\r\n}",
@@ -1115,6 +1366,39 @@
 					}
 				},
 				"url": "{{host}}/users/modify/6679378221c89e9c0c32b7b4/prerequisites"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete User ID 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Success message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"성공적으로 삭제하였습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
+				"url": "{{host}}/users/{{deleteUserId}}"
 			},
 			"response": []
 		},
@@ -1140,16 +1424,13 @@
 			],
 			"request": {
 				"method": "DELETE",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"interestedPrograms\": [\r\n        \"65fb79e7a459d4313988b392\",\r\n        \"65fc0263a13ed67a8e461629\"\r\n    ],\r\n    \"interestedUniversities\": [\r\n        \"65a83ef98dee45bb7cc34d13\"\r\n    ]\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
 					}
-				},
+				],
 				"url": "{{host}}/users/667892ae3259fc26445faabd"
 			},
 			"response": []
@@ -1176,7 +1457,13 @@
 			],
 			"request": {
 				"method": "DELETE",
-				"header": [],
+				"header": [
+					{
+						"key": "authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"universities\": [\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
@@ -1212,7 +1499,13 @@
 			],
 			"request": {
 				"method": "DELETE",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"universities\": [\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
@@ -1248,7 +1541,13 @@
 			],
 			"request": {
 				"method": "DELETE",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"universities\": [\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
@@ -1284,7 +1583,13 @@
 			],
 			"request": {
 				"method": "DELETE",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\"\r\n    ]\r\n}",
@@ -1320,7 +1625,13 @@
 			],
 			"request": {
 				"method": "DELETE",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"universities\": [\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
@@ -1356,7 +1667,13 @@
 			],
 			"request": {
 				"method": "DELETE",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\r\n    \"universities\": [\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",

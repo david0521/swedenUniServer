@@ -8,6 +8,73 @@
 	},
 	"item": [
 		{
+			"name": "Login for test",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.globals.set(\"JWT\", response.token);\r",
+							"    pm.globals.set(\"refreshToken\", response.refreshToken);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"test4@test.com\",\r\n    \"password\": \"123456789\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh token test",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"if (pm.response.code === 200) {\r",
+							"    const response = pm.response.json();\r",
+							"    pm.globals.set(\"JWT\", response.token);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"refreshToken\": \"{{refreshToken}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/refreshToken"
+			},
+			"response": []
+		},
+		{
 			"name": "Get Programs",
 			"event": [
 				{
@@ -304,6 +371,52 @@
 			"response": []
 		},
 		{
+			"name": "Post Program 201",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Success message is correct\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"새로운 프로그램이 등록되었습니다.\");",
+							"})",
+							"",
+							"const response = pm.response.json();",
+							"pm.globals.set(\"deleteProgram\", response.program._id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"programName\": \"Random Test Program\",\n    \"programCode\": \"00000\",\n    \"programUniversity\": \"Test\",\n    \"programDescription\": \"Just a Test\",\n    \"programPrerequisites\": [\"Math4\", \"Physics2\"],\n    \"programTuition\": 100000000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/programs",
+				"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+			},
+			"response": []
+		},
+		{
 			"name": "Post Program 400 (info)",
 			"event": [
 				{
@@ -325,7 +438,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n\t\"programName\": \"Test Program\",\n    \"programCode\": \"00000\",\n    \"programDescription\": \"Just a Test\",\n    \"programPrerequisites\": [\"Math4\", \"Physics2\"],\n    \"programTuition\": 100000000\n}",
@@ -362,7 +481,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n\t\"programName\": \"Test Program\",\n    \"programCode\": \"00000\",\n    \"programUniversity\": \"Test University\",\n    \"programDescription\": \"Just a Test\",\n    \"programPrerequisites\": [\"Math4\", \"Magic2\"],\n    \"programTuition\": 100000000\n}",
@@ -399,7 +524,13 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n\t\"programName\": \"Software Engineering and Management\",\n    \"programCode\": \"N1SOF\",\n    \"programUniversity\": \"University of Gothenburg\",\n    \"programDescription\": \"A program where you learn about programming and management\",\n    \"programPrerequisites\": [\"Math3B\"],\n    \"programTuition\": 100\n}",
@@ -432,7 +563,13 @@
 			],
 			"request": {
 				"method": "PATCH",
-				"header": [],
+				"header": [
+					{
+						"key": "authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n\t\"prerequisite\": [\"Math3\", \"Physics2\"]\n}",
@@ -469,7 +606,13 @@
 			],
 			"request": {
 				"method": "PATCH",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n\t\"prerequisite\": [\"Math3\", \"Physics2\"]\n}",
@@ -481,6 +624,49 @@
 				},
 				"url": "{{host}}/programs/65a83ef98dee45bb7cc34d13",
 				"description": "This is a PUT request and it is used to overwrite an existing piece of data. For instance, after you create an entity with a POST request, you may want to modify that later. You can do that using a PUT request. You typically identify the entity being updated by including an identifier in the URL (eg. `id=1`).\n\nA successful PUT request typically returns a `200 OK`, `201 Created`, or `204 No Content` response code."
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Program 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Success message is correct\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"성공적으로 삭제하였습니다.\");",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/programs/{{deleteProgram}}",
+				"description": "This is a DELETE request, and it is used to delete data that was previously created via a POST request. You typically identify the entity being updated by including an identifier in the URL (eg. `id=1`).\n\nA successful DELETE request typically returns a `200 OK`, `202 Accepted`, or `204 No Content` response code."
 			},
 			"response": []
 		},
@@ -506,7 +692,13 @@
 			],
 			"request": {
 				"method": "DELETE",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "",
