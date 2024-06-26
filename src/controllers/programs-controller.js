@@ -1,6 +1,10 @@
 const router = require("express").Router();
 const Programs = require("../schemas/program.js")
 const University = require("../schemas/university.js")
+const Users = require('../schemas/user.js')
+
+const authenticateJWT = require('../middlewares/jwtAuth.middle.js')
+const { authorizeUser, authorizeAdmin } = require('../middlewares/authorize.middle.js')
 
 
 
@@ -172,12 +176,11 @@ router.get("/:id", async (req, res) => {
  * @tags universities
  * @return {object} 201 - Created
  * @return {object} 400 - Request missing data
- * @return {object} 403 - Request forbidden. Only for admin users. TODO
+ * @return {object} 403 - Request forbidden. Only for admin users.
  * @return {object} 409 - Request info already exists
  */
-router.post("/", async (req, res) => {
+router.post("/", authenticateJWT, authorizeAdmin, async (req, res) => {
     try {
-        console.log(req.body)
         const name = req.body.programName;
         const programCode = req.body.programCode;
         const universityName = req.body.programUniversity;
@@ -237,7 +240,7 @@ router.post("/", async (req, res) => {
  * @return {object} 403 - Request forbidden. Only for admin users. TODO
  * @return {object} 404 - Program not found
  */
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", authenticateJWT, authorizeAdmin, async (req, res) => {
     try {
         const existingProgram = await Programs.findById(req.params.id);
 
@@ -274,7 +277,7 @@ router.patch("/:id", async (req, res) => {
  * @return {object} 403 - Request forbidden. Only for admin users. TODO
  * @return {object} 404 - Program not found
  */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticateJWT, authorizeAdmin, async (req, res) => {
     try {
         const existingProgram = await Programs.findOne({ _id: req.params.id });
 

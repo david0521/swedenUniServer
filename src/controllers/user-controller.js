@@ -6,6 +6,9 @@ const initializePassport = require('../../passport-config.js');
 const { createResetToken, verifyJWTToken } = require('../services/resettoken.service.js');
 const { sendResetLink } = require('../services/email.service.js');
 const { encryptionHandler } = require('../services/encryption.service.js');
+const authenticateJWT = require('../middlewares/jwtAuth.middle.js');
+const { authorizeUser, authorizeAdmin } = require('../middlewares/authorize.middle.js');
+const { v4: uuidv4 } = require('uuid');
 
 
 const Users = require("../schemas/user.js");
@@ -31,7 +34,7 @@ const securityHandler = new encryptionHandler();
  * @return {object} 404 - No user registered
  * @return {object} 500 - Internal server error
  */
-router.get("/all", async (req, res) => {
+router.get("/all", authenticateJWT, authorizeAdmin, async (req, res) => {
     try {
         const users = await Users.find().select("-__v -password");
 
@@ -60,7 +63,7 @@ router.get("/all", async (req, res) => {
  * @return {object} 500 - Internal server error
  * */
 
-router.get("/id/:id", async (req, res) => {
+router.get("/id/:id", authenticateJWT, authorizeAdmin, async (req, res) => {
     try {
         const requestedUser = req.params.id;
 
@@ -186,15 +189,52 @@ router.post("/login", async (req, res) => {
                 });
             }
     
-            req.login(user, { session: false }, (err) => {
+            req.login(user, { session: false }, async (err) => {
                 if (err) {
                     res.send(err);
                 }
-                const token = jwt.sign({ id: user.id, email: user.email, exp: Math.floor(Date.now() / 1000) + (12 * 60 * 60)}, jwtSecret);
-                return res.json({ token });
+                const token = jwt.sign({ id: user.id, email: user.email, admin: user.admin, exp: Math.floor(Date.now() / 1000) + (12 * 60 * 60)}, jwtSecret);
+                const refreshToken = uuidv4();
+
+                await Users.updateOne({ _id: user.id }, { refreshToken });
+
+                return res.json({ token, refreshToken });
             });
         })(req, res);
 
+    } catch (err) {
+        console.error(err);
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다." });
+    }
+});
+
+/**
+ * Post /users/refreshToken
+ * @summary Return new JWT to authenticate user once the previous one expires
+ * @tags users
+ * @return {object} 200 - Success response
+ * @return {object} 400 - Bad request response
+ * @return {object} 403 - Doesn't belong to the user
+ * @return {object} 500 - Internal server error
+ */
+router.post("/refreshToken", async (req, res) => {
+    try {
+        const { refreshToken } = req.body;
+
+        if (!refreshToken) {
+            return res.status(400).json({ message: "재활용 토큰이 주어지지 않았습니다." });
+        }
+
+        const user = await Users.findOne({ refreshToken });
+
+        if (!user) {
+            return res.status(403).json({ message: "다음 재활용 토큰에 해당하는 회원이 없습니다." });
+        }
+
+        const newToken = jwt.sign({ id: user.id, email: user.email, admin: user.admin, exp: Math.floor(Date.now() / 1000) + (12 * 60 * 60)}, jwtSecret);
+
+        return res.status(200).json({ token: newToken });
     } catch (err) {
         console.error(err);
         // Translation: An internal server error has occured
@@ -376,7 +416,7 @@ router.post("/resetPassword", async (req, res) => {
  * @return {object} 404 - Student not found
  * @return {object} 500 - Internal server error
  */
-router.post("/:id/programs", async (req, res) => {
+router.post("/:id/programs", authenticateJWT, authorizeUser, async (req, res) => {
     try {
         const prospective = await Users.findById(req.params.id);
         const programIds = req.body.programs;
@@ -411,7 +451,7 @@ router.post("/:id/programs", async (req, res) => {
  * @return {object} 404 - Student not found
  * @return {object} 500 - Internal server error
  */
-router.post("/:id/universities", async (req, res) => {
+router.post("/:id/universities", authenticateJWT, authorizeUser, async (req, res) => {
     try {
         const prospective = await Users.findById(req.params.id);
         const universityIds = req.body.universities;
@@ -447,7 +487,7 @@ router.post("/:id/universities", async (req, res) => {
  * @return {object} 404 - Student not found
  * @return {object} 500 - Internal server error
  */
-router.post("/modify/:id/meritPoint", async (req, res) => {
+router.post("/modify/:id/meritPoint", authenticateJWT, authorizeUser, async (req, res) => {
     try {
         const userId = req.params.id;
         const meritPoint = req.body.meritPoint;
@@ -490,7 +530,7 @@ router.post("/modify/:id/meritPoint", async (req, res) => {
  * @return {object} 404 - Student not found
  * @return {object} 500 - Internal server error
  */
-router.post("/modify/:id/prerequisites", async (req, res) => {
+router.post("/modify/:id/prerequisites", authenticateJWT, authorizeUser, async (req, res) => {
     try {
         const userId = req.params.id;
         const prerequisites = req.body.prerequisites;
@@ -534,7 +574,7 @@ router.post("/modify/:id/prerequisites", async (req, res) => {
  * @return {object} 403 - TODO: Forbidden
  * @return {object} 404 - User not found
  */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticateJWT, authorizeUser, async (req, res) => {
     try {
         const user = await Users.findOne({ _id: req.params.id });
 
@@ -563,7 +603,7 @@ router.delete("/:id", async (req, res) => {
  * @return {object} 404 - Student not found
  * @return {object} 500 - Internal server error
  */
-router.delete("/:id/programs", async (req, res) => {
+router.delete("/:id/programs", authenticateJWT, authorizeUser, async (req, res) => {
     try {
         const prospective = await Users.findById(req.params.id);
         const programIds = req.body.programs;
@@ -599,7 +639,7 @@ router.delete("/:id/programs", async (req, res) => {
  * @return {object} 404 - Student not found
  * @return {object} 500 - Internal server error
  */
-router.delete("/:id/universities", async (req, res) => {
+router.delete("/:id/universities", authenticateJWT, authorizeUser, async (req, res) => {
     try {
         const prospective = await Users.findById(req.params.id);
         const universityIds = req.body.universities;
