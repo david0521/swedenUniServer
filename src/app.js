@@ -6,6 +6,8 @@ const cors = require("cors");
 const UniversityController = require("./controllers/university-controller");
 const ProgramController = require("./controllers/programs-controller");
 const UserController = require("./controllers/user-controller");
+const ConsentController = require("./controllers/consentForm-controller");
+
 const app = express();
 require('dotenv').config()
 app.use(express.json());
@@ -45,6 +47,7 @@ app.get('/api', (req, res) => {
 app.use("/api/universities", UniversityController)
 app.use("/api/programs", ProgramController);
 app.use("/api/users", UserController);
+app.use("/api/consents", ConsentController);
 
 app.listen(port, function (err) {
   if (err) throw err;
