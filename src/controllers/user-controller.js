@@ -16,6 +16,7 @@ const ProspectiveStudents = require("../schemas/prospectiveStudent.js");
 const UniversityStudents = require("../schemas/universityStudent.js");
 const University = require("../schemas/university.js");
 const Program = require("../schemas/program.js");
+const ConsentForm = require("../schemas/consentForm.js")
 const ResetToken = require("../schemas/resetToken.js");
 
 const jwtSecret = process.env.JWT_SECRET;
@@ -257,6 +258,7 @@ router.post("/register", async (req, res) => {
         const password = await bcrypt.hash(req.body.password, 10);
         const userName = req.body.userName;
         const userType = req.body.userType;
+        const consentId = req.body.consents;
 
         if (!email || !password || !userName || !userType) {
             // Translation: Registeration requires: email, password, name, and account type.
@@ -292,7 +294,7 @@ router.post("/register", async (req, res) => {
                 userAccount = new Users({
                     email: email,
                     password: password,
-                    userName: userName
+                    userName: userName,
                 });
                 break;
             case 'prospective':
@@ -311,6 +313,14 @@ router.post("/register", async (req, res) => {
                 break;
         }
 
+        console.log(consentId)
+
+        const consentForm = await ConsentForm.findById(consentId)
+
+        console.log(consentForm)
+
+        await userAccount.save();
+        userAccount.consents.push(consentForm);
         await userAccount.save();
         const userId = userAccount._id
         // Translation: Account created
