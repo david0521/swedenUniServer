@@ -3,9 +3,9 @@ const Schema = mongoose.Schema;
 
 /**
  * name: Name of the user
- * email: Email address of the user
- * password: Password of the user
- * admin: Admin status (default false)
+ * topic: Topic of the consent form
+ * collectedData: Data collected from the consent
+ * timestamp: Time when the consent was signed
  */
 
 const consentFormSchema = new Schema({
@@ -20,9 +20,6 @@ const consentFormSchema = new Schema({
     timestamp: {
         type: Date,
         required: [true, "Timestamp is required"],
-    },
-    signature: {
-        type: String
     }
 });
 

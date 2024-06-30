@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.JWT_SECRET;
 
 const authenticateJWT = (req, res, next) => {
-    console.log(req.headers.authorization);
     const token = req.headers.authorization;
 
     if(!token) {

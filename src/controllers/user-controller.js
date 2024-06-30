@@ -64,7 +64,7 @@ router.get("/all", authenticateJWT, authorizeAdmin, async (req, res) => {
  * @return {object} 500 - Internal server error
  * */
 
-router.get("/id/:id", authenticateJWT, authorizeAdmin, async (req, res) => {
+router.get("/id/:id", authenticateJWT, authorizeUser, async (req, res) => {
     try {
         const requestedUser = req.params.id;
 
@@ -169,6 +169,75 @@ router.get("/prospective/program", async (req, res) => {
 });
 
 /**
+ * Get /users/{id}/prospective/universities
+ * @summary Returns all universities that a user is interested in
+ * @tags users
+ * @return {object} 200 - Success response
+ * @return {object} 500 - Internal server error
+ * */
+
+router.get("/:id/prospective/universities", authenticateJWT, authorizeUser, async (req, res) => {
+    try {
+        const userID = req.params.id;
+
+        const user = await Users.findById(userID).select("interestedUniversities");
+
+        if (!user) {
+            return res.status(404).json({ error: "존재하지 않는 회원입니다." })
+        } else if (user.__t != 'prospectiveStudent') {
+            return res.status(403).json({ error: '다음 계정에서 지원되지 않는 기능입니다.' })
+        }
+        else {
+            const universities = await University.find({
+                _id: { $in: user.interestedUniversities }
+            }).select("name ,_id");
+            return res.status(200).json({ universities })
+    
+        }        
+    } catch (err) {
+        console.error(err);
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다." });
+    }
+});
+
+/**
+ * Get /users/{id}/prospective/programs
+ * @summary Returns all programs that a user is interested in
+ * @tags users
+ * @return {object} 200 - Success response
+ * @return {object} 500 - Internal server error
+ * */
+
+router.get("/:id/prospective/programs", authenticateJWT, authorizeUser, async (req, res) => {
+    try {
+        const userID = req.params.id;
+
+        const user = await Users.findById(userID).select("interestedPrograms");
+
+        if (!user) {
+            return res.status(404).json({ error: "존재하지 않는 회원입니다." })
+        } else if (user.__t != 'prospectiveStudent') {
+            return res.status(403).json({ error: '다음 계정에서 지원되지 않는 기능입니다.' })
+        }
+        else {
+            const programs = await Program.find({
+                _id: { $in: user.interestedPrograms }
+            }).select("name ,_id");
+            return res.status(200).json({ programs })
+        }
+    
+
+        
+    } catch (err) {
+        console.error(err);
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다." });
+    }
+});
+
+
+/**
  * Post /users/login
  * @summary TODO: Login a user into the system
  * @tags users
@@ -197,9 +266,11 @@ router.post("/login", async (req, res) => {
                 const token = jwt.sign({ id: user.id, email: user.email, admin: user.admin, exp: Math.floor(Date.now() / 1000) + (12 * 60 * 60)}, jwtSecret);
                 const refreshToken = uuidv4();
 
+                const userId = user.id
+
                 await Users.updateOne({ _id: user.id }, { refreshToken });
 
-                return res.json({ token, refreshToken });
+                return res.json({ token, refreshToken, userId });
             });
         })(req, res);
 
@@ -385,6 +456,8 @@ router.post("/resetPassword", async (req, res) => {
     try {
         const resetToken = req.body.token;
         const newPassword = req.body.newPassword
+
+        console.log(resetToken)
 
         // Verify if the token is valid
         const {error, decoded} = verifyJWTToken(resetToken);
