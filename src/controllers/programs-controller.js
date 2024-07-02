@@ -1,10 +1,11 @@
 const router = require("express").Router();
-const Programs = require("../schemas/program.js")
-const University = require("../schemas/university.js")
-const Users = require('../schemas/user.js')
+const Programs = require("../schemas/program.js");
+const University = require("../schemas/university.js");
+const Users = require('../schemas/user.js');
+const ProspectiveStudents = require('../schemas/prospectiveStudent.js');
 
-const authenticateJWT = require('../middlewares/jwtAuth.middle.js')
-const { authorizeUser, authorizeAdmin } = require('../middlewares/authorize.middle.js')
+const authenticateJWT = require('../middlewares/jwtAuth.middle.js');
+const { authorizeUser, authorizeAdmin } = require('../middlewares/authorize.middle.js');
 
 
 
@@ -128,8 +129,6 @@ router.get("/byUniversity", async (req, res) => {
             return res.status(400).json({ error: "대학교 정보가 입력되지 않았습니다." });
         }
 
-        console.log(requestedUniversity);
-
         const programsWithUniversity = await Programs.find({ universityName: requestedUniversity });
 
         if (programsWithUniversity.length === 0) {
@@ -169,6 +168,30 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+/**
+ * Get /programs/prospective/{program}
+ * @summary Returns number of prospective students who are interested in a specific program
+ * @tags programs
+ * @return {object} 200 - Success response
+ * @return {object} 500 - Internal server error
+ * */
+
+router.get("/prospective/program", async (req, res) => {
+    try {
+        const requestedProgram = req.query.program;
+        
+        const programID = await Programs.findOne({ name: requestedProgram }).select("_id");
+
+        const interestNumber = await ProspectiveStudents.countDocuments({ interestedPrograms: programID });
+
+        return res.status(200).json({ message: interestNumber });
+        
+    } catch (err) {
+        console.error(err);
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다." });
+    }
+});
 
 /**
  * Post /programs
@@ -187,9 +210,9 @@ router.post("/", authenticateJWT, authorizeAdmin, async (req, res) => {
         const programDescription = req.body.programDescription;
         const prerequisite = req.body.programPrerequisites;
         const tuitionFee = req.body.programTuition;
-        const type = req.body.type;
+        const programType = req.body.type;
 
-        if (!name || !programCode || !universityName || !prerequisite || !tuitionFee || !type) {
+        if (!name || !programCode || !universityName || !prerequisite || !tuitionFee || !programType) {
             // Translation: To create a new program the following information is required: name, program code, university name, prerequisites, type, and tuitionFee
             return res.status(400).json({ error: "새로운 프로그램을 등록하기 위해서 다음 정보가 필요합니다: 이름, 학과코드, 자격요건, 학비, 계열" });
         }
@@ -200,8 +223,7 @@ router.post("/", authenticateJWT, authorizeAdmin, async (req, res) => {
             return res.status(400).json({ error: "존재하지 않는 자격요건: " + invalidPrerequisites.join(", ") });
         }
 
-        const invalidtypes = type.filter(p => !["이과", "문과", "예체능"].includes(p));
-        if (invalidtypes.length > 0) {
+        if (programType != '이과' && programType != '문과' && programType != '예체능') {
             // Translation: Invalid type
             return res.status(400).json({ error: "존재하지 않는 게열입니다." })
         }
@@ -220,7 +242,7 @@ router.post("/", authenticateJWT, authorizeAdmin, async (req, res) => {
             programDescription: programDescription,
             prerequisite: prerequisite,
             tuitionFee: tuitionFee,
-            type: type
+            type: programType
         })
 
         await newProgram.save();
@@ -232,6 +254,7 @@ router.post("/", authenticateJWT, authorizeAdmin, async (req, res) => {
         );
 
         // Translation: New program saved
+        console.log(newProgram)
         return res.status(201).json({ message: "새로운 프로그램이 등록되었습니다.", program: newProgram });
     } catch (err) {
         console.error(err);
