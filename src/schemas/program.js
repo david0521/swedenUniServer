@@ -38,6 +38,11 @@ const programSchema = new Schema({
             ref: Records,
         },
     ],
+    type: {
+        type: String,
+        enum: ["이과", "문과", "예체능"],
+        required: true
+    },
     tuitionFee: {
         type: Number,
         required: [true, "Tuition fee information must be registered."]

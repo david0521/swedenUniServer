@@ -3,7 +3,8 @@ const { applyDefaults } = require("../schemas/records.js");
 const Universities = require("../schemas/university.js")
 
 const authenticateJWT = require('../middlewares/jwtAuth.middle.js')
-const { authorizeUser, authorizeAdmin } = require('../middlewares/authorize.middle.js')
+const { authorizeUser, authorizeAdmin } = require('../middlewares/authorize.middle.js');
+const university = require("../schemas/university.js");
 
 /**
  * Get /universities
@@ -21,7 +22,7 @@ router.get("/", async (req, res) => {
             return res.status(404).send("시스템에 등록된 대학교가 존재하지 않습니다.")
         }
 
-        return res.send(universities);
+        return res.status(200).json({univeristies: universities});
     } catch (err) {
         console.log(err);
         // Translation: An internal server error has occured
@@ -58,6 +59,30 @@ router.get("/byCity", async (req, res) => {
 
         return res.status(200).json({ universities: universitiesInCity })
         
+    } catch (err) {
+        console.error(err);
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다." });
+    }
+});
+
+/**
+ * Get /universities/name/{name}
+ * @summary Returns a specific university
+ * @tags universities
+ * @return {object} 200 - Success response
+ * @return {object} 404 - University not found
+ */
+router.get("/name/:name", async (req, res) => {
+    try {
+         const university = await Universities.findOne({name: req.params.name});
+
+        if (university == null) {
+            // Translation: University not found
+            return res.status(404).send("다음 이름으로 등록된 대학교는 존재하지 않습니다.")
+        }
+
+        return res.status(200).json({ universities: university });
     } catch (err) {
         console.error(err);
         // Translation: An internal server error has occured

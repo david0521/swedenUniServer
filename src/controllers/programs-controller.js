@@ -24,7 +24,7 @@ router.get("/", async (req, res) => {
             return res.status(404).send("시스템에 등록된 프로그램이 없습니다.");
         }
 
-        return res.status(200).send(programs);
+        return res.status(200).json({programs: programs});
     } catch (err) {
         console.log(err);
         // Translation: An internal server error has occured
@@ -187,16 +187,23 @@ router.post("/", authenticateJWT, authorizeAdmin, async (req, res) => {
         const programDescription = req.body.programDescription;
         const prerequisite = req.body.programPrerequisites;
         const tuitionFee = req.body.programTuition;
+        const type = req.body.type;
 
-        if (!name || !programCode || !universityName || !prerequisite || !tuitionFee) {
-            // Translation: To create a new program the following information is required: name, program code, university name, prerequisites, and tuitionFee
-            return res.status(400).json({ error: "새로운 프로그램을 등록하기 위해서 다음 정보가 필요합니다: 이름, 학과코드, 자격요건, 학비" });
+        if (!name || !programCode || !universityName || !prerequisite || !tuitionFee || !type) {
+            // Translation: To create a new program the following information is required: name, program code, university name, prerequisites, type, and tuitionFee
+            return res.status(400).json({ error: "새로운 프로그램을 등록하기 위해서 다음 정보가 필요합니다: 이름, 학과코드, 자격요건, 학비, 계열" });
         }
 
         const invalidPrerequisites = prerequisite.filter(p => !["Math3B", "Math4", "Math5", "Physics1A", "Physics2", "Chemistry1", "Chemistry2", "Biology1", "Biology2", "Science2", "Civics1B", "History1B", "SpecialRequirement"].includes(p));
         if (invalidPrerequisites.length > 0) {
             // Translation: Invalid prerquisite(s)
             return res.status(400).json({ error: "존재하지 않는 자격요건: " + invalidPrerequisites.join(", ") });
+        }
+
+        const invalidtypes = type.filter(p => !["이과", "문과", "예체능"].includes(p));
+        if (invalidtypes.length > 0) {
+            // Translation: Invalid type
+            return res.status(400).json({ error: "존재하지 않는 게열입니다." })
         }
 
         const existingProgram = await Programs.findOne({ name: name });
@@ -212,7 +219,8 @@ router.post("/", authenticateJWT, authorizeAdmin, async (req, res) => {
             universityName: universityName,
             programDescription: programDescription,
             prerequisite: prerequisite,
-            tuitionFee: tuitionFee
+            tuitionFee: tuitionFee,
+            type: type
         })
 
         await newProgram.save();
