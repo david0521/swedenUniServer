@@ -415,39 +415,6 @@
 				"url": "{{host}}/auth/resetPassword"
 			},
 			"response": []
-		},
-		{
-			"name": "Delete User ID 200",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Success message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"성공적으로 삭제하였습니다.\");\r",
-							"})"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "{{JWT}}",
-						"type": "text"
-					}
-				],
-				"url": "{{host}}/users/{{deleteUserId}}"
-			},
-			"response": []
 		}
 	],
 	"event": [
