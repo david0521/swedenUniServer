@@ -62,6 +62,11 @@ jobs:
           npm run start &
           sleep 3
 
+      - name: Run Auth Tests
+        run: |
+          cd src/PostmanCollection
+          newman run "Authorization.postman_collection.json" -e "test.postman_environment.json" -r cli,htmlextra --reporter-htmlextra-export ../../TestArtifacts/AuthorizationReport.html
+
       - name: Run University Tests
         run: |
           cd src/PostmanCollection

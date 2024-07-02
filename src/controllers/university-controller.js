@@ -1,10 +1,10 @@
 const router = require("express").Router();
-const { applyDefaults } = require("../schemas/records.js");
+
 const Universities = require("../schemas/university.js")
+const ProspectiveStudents = require("../schemas/prospectiveStudent.js")
 
 const authenticateJWT = require('../middlewares/jwtAuth.middle.js')
 const { authorizeUser, authorizeAdmin } = require('../middlewares/authorize.middle.js');
-const university = require("../schemas/university.js");
 
 /**
  * Get /universities
@@ -99,13 +99,38 @@ router.get("/name/:name", async (req, res) => {
  */
 router.get("/:id", async (req, res) => {
     try {
-         university = await Universities.findOne({_id: req.params.id });
+         const university = await Universities.findOne({_id: req.params.id });
 
         if (university == null) {
             // Translation: University not found
             return res.status(404).send("다음 ID로 등록된 대학교는 존재하지 않습니다.")
         }
-    return res.send(university);
+    return res.status(200).json(university);
+    } catch (err) {
+        console.error(err);
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다." });
+    }
+});
+
+/**
+ * Get /universities/prospective/{university}
+ * @summary Returns number of prospective students who are interested in a specific university
+ * @tags universities
+ * @return {object} 200 - Success response
+ * @return {object} 500 - Internal server error
+ * */
+
+router.get("/prospective/university", async (req, res) => {
+    try {
+        const requestedUniversity = req.query.university;
+        
+        const uniID = await Universities.findOne({ name: requestedUniversity }).select("_id");
+
+        const interestNumber = await ProspectiveStudents.countDocuments({ interestedUniversities: uniID });
+
+        return res.status(200).json({message: interestNumber});
+        
     } catch (err) {
         console.error(err);
         // Translation: An internal server error has occured
@@ -160,7 +185,7 @@ router.post("/", authenticateJWT, authorizeAdmin, async (req, res) => {
  * @summary Modifies the information of a specific university
  * @tags universities
  * @return {object} 200 - Modified
- * @return {object} 403 - Request forbidden. Only for admin users. TODO
+ * @return {object} 403 - Request forbidden. Only for admin users.
  * @return {object} 404 - University not found
  */
 router.patch("/:id", authenticateJWT, authorizeAdmin, async (req, res) => {
@@ -199,7 +224,7 @@ router.patch("/:id", authenticateJWT, authorizeAdmin, async (req, res) => {
  * @summary Delete a new university
  * @tags universities
  * @return {object} 200 - Deleted
- * @return {object} 403 - Request forbidden. Only for admin users. TODO
+ * @return {object} 403 - Request forbidden. Only for admin users.
  * @return {object} 404 - University not found
  */
 router.delete("/:id", authenticateJWT, authorizeAdmin, async (req, res) => {

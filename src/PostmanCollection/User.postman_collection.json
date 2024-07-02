@@ -36,7 +36,7 @@
 						}
 					}
 				},
-				"url": "{{host}}/users/login"
+				"url": "{{host}}/auth/login"
 			},
 			"response": []
 		},
@@ -69,7 +69,7 @@
 						}
 					}
 				},
-				"url": "{{host}}/users/refreshToken"
+				"url": "{{host}}/auth/refreshToken"
 			},
 			"response": []
 		},
@@ -257,7 +257,7 @@
 			"response": []
 		},
 		{
-			"name": "Get University Interest",
+			"name": "Get University Interest by Id",
 			"event": [
 				{
 					"listen": "test",
@@ -277,7 +277,13 @@
 			},
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "",
@@ -287,36 +293,24 @@
 						}
 					}
 				},
-				"url": {
-					"raw": "{{host}}/users/prospective/university?university=University%20of%20Gothenburg",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"users",
-						"prospective",
-						"university"
-					],
-					"query": [
-						{
-							"key": "university",
-							"value": "University%20of%20Gothenburg"
-						}
-					]
-				}
+				"url": "{{host}}/users/66792b2953dfc9253d6aa04c/prospective/universities"
 			},
 			"response": []
 		},
 		{
-			"name": "Get Program Interest",
+			"name": "Get University Interest by Id 404",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 400\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});"
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"존재하지 않는 회원입니다.\");\r",
+							"})"
 						],
 						"type": "text/javascript",
 						"packages": {}
@@ -328,7 +322,13 @@
 			},
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "",
@@ -338,432 +338,7 @@
 						}
 					}
 				},
-				"url": {
-					"raw": "{{host}}/users/prospective/program?program=Software%20Engineering%20and%20Management",
-					"host": [
-						"{{host}}"
-					],
-					"path": [
-						"users",
-						"prospective",
-						"program"
-					],
-					"query": [
-						{
-							"key": "program",
-							"value": "Software%20Engineering%20and%20Management"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Create Account 200",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 201\", function () {\r",
-							"    pm.response.to.have.status(201);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Success message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"회원가입에 성공하였습니다.\");\r",
-							"})\r",
-							"\r",
-							"var response = pm.response.json();\r",
-							"pm.environment.set(\"deleteUserId\", response.id);"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"var randomEmail = pm.variables.replaceIn('{{$randomEmail}}');\r",
-							"pm.environment.set(\"randomEmail\", randomEmail);"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"userName\": \"testUser\",\r\n    \"email\": \"{{randomEmail}}\",\r\n    \"password\": \"123456789\",\r\n    \"userType\": \"student\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "{{host}}/users/register"
-			},
-			"response": []
-		},
-		{
-			"name": "Create Account 400 (Invalid Type)",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 400\", function () {\r",
-							"    pm.response.to.have.status(400);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Error message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"존재하지 않는 계정 유형입니다.\");\r",
-							"})"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"userName\": \"Test\",\r\n    \"email\": \"test3@test.com\",\r\n    \"password\": \"123456789\",\r\n    \"userType\": \"test\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "{{host}}/users/register"
-			},
-			"response": []
-		},
-		{
-			"name": "Create Account 400 (Missing Info)",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 400\", function () {\r",
-							"    pm.response.to.have.status(400);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Error message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"회원가입을 위해서는 다음 정보가 필요합니다: 이메일, 암호, 유저네임, 계정종류\");\r",
-							"})"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"userName\": \"Test\",\r\n    \"email\": \"test@test.com\",\r\n    \"password\": \"123456789\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "{{host}}/users/register"
-			},
-			"response": []
-		},
-		{
-			"name": "Create Account 400 (Short Password)",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 400\", function () {\r",
-							"    pm.response.to.have.status(400);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Error message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"비밀번호는 최소한 8자리 이상이어야 합니다.\");\r",
-							"})"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"userName\": \"Test\",\r\n    \"email\": \"test@test.com\",\r\n    \"password\": \"123456\",\r\n    \"userType\": \"student\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "{{host}}/users/register"
-			},
-			"response": []
-		},
-		{
-			"name": "Create Account 403 (Admin Trial)",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 403\", function () {\r",
-							"    pm.response.to.have.status(403);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Error message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"관리자 계정 생성은 금지되어 있습니다.\");\r",
-							"})"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"userName\": \"Test\",\r\n    \"email\": \"test@test.com\",\r\n    \"password\": \"12345678\",\r\n    \"userType\": \"student\",\r\n    \"admin\": true\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "{{host}}/users/register"
-			},
-			"response": []
-		},
-		{
-			"name": "Create Account 409",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 409\", function () {\r",
-							"    pm.response.to.have.status(409);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Error message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"이미 가입된 이메일입니다.\");\r",
-							"})"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"userName\": \"Test\",\r\n    \"email\": \"test@test.com\",\r\n    \"password\": \"12345678\",\r\n    \"userType\": \"student\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "{{host}}/users/register"
-			},
-			"response": []
-		},
-		{
-			"name": "Login 200",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"test@test.com\",\r\n    \"password\": \"123456789\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "{{host}}/users/login"
-			},
-			"response": []
-		},
-		{
-			"name": "Login 400 (Wrong Email)",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 400\", function () {\r",
-							"    pm.response.to.have.status(400);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Error message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"존재하지 않는 계정입니다.\");\r",
-							"})"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"tes@test.com\",\r\n    \"password\": \"123456789\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "{{host}}/users/login"
-			},
-			"response": []
-		},
-		{
-			"name": "Login 400 (Wrong Password)",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 400\", function () {\r",
-							"    pm.response.to.have.status(400);\r",
-							"});\r",
-							"\r",
-							"\r",
-							"pm.test(\"Error message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"잘못된 비밀번호입니다.\");\r",
-							"})"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"test@test.com\",\r\n    \"password\": \"23456789\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "{{host}}/users/login"
-			},
-			"response": []
-		},
-		{
-			"name": "Change Password Email 200",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
-							"\r",
-							"\r",
-							"pm.test(\"Sucess message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"해당 이메일 주소로 메일이 발송되었습니다.\");\r",
-							"})"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"davidhong521@gmail.com\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "{{host}}/users/resetPassword/emailRequest"
-			},
-			"response": []
-		},
-		{
-			"name": "Reset Password 400 (Expired)",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 400\", function () {\r",
-							"    pm.response.to.have.status(400);\r",
-							"});\r",
-							"\r",
-							"\r",
-							"pm.test(\"Error message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"만료되거나 유효하지 않은 인증서입니다.\");\r",
-							"})"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNjY3OTZjNGViYjA0MTU4ZWRlZjhmZThiIn0sImlhdCI6MTcxOTI2NzM0NywiZXhwIjoxNzE5MjY4NTQ3fQ.Q5N-m4QeJjFv9u5H3nXvbQCQJPHwM5sqXTVI8ORh94\",\r\n    \"newPassword\": \"00000000\"\r\n}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": "{{host}}/users/resetPassword"
+				"url": "{{host}}/users/66791b2953dfc9253d6aa04c/prospective/universities"
 			},
 			"response": []
 		},
@@ -935,7 +510,7 @@
 						}
 					}
 				},
-				"url": "{{host}}/users/66792b2953dfc9253d6aa04c/universities"
+				"url": "{{host}}/users/6679fc18824af438b7cabff9/universities"
 			},
 			"response": []
 		},
@@ -1370,39 +945,6 @@
 			"response": []
 		},
 		{
-			"name": "Delete User ID 200",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
-							"\r",
-							"pm.test(\"Success message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"성공적으로 삭제하였습니다.\");\r",
-							"})"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "{{JWT}}",
-						"type": "text"
-					}
-				],
-				"url": "{{host}}/users/{{deleteUserId}}"
-			},
-			"response": []
-		},
-		{
 			"name": "Delete User ID 404",
 			"event": [
 				{
@@ -1466,7 +1008,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"universities\": [\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
+					"raw": "{\r\n    \"universities\": [\r\n        \"65a83ef98dee45bb7cc34d13\",\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

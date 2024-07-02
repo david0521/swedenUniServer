@@ -37,7 +37,7 @@
 						}
 					}
 				},
-				"url": "{{host}}/users/login"
+				"url": "{{host}}/auth/login"
 			},
 			"response": []
 		},
@@ -70,7 +70,7 @@
 						}
 					}
 				},
-				"url": "{{host}}/users/refreshToken"
+				"url": "{{host}}/auth/refreshToken"
 			},
 			"response": []
 		},
@@ -371,6 +371,50 @@
 			"response": []
 		},
 		{
+			"name": "Get Program Likes 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Error message is correct\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"message\");",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/programs/prospective/program?program=Software%20Engineering%20and%20Management",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"programs",
+						"prospective",
+						"program"
+					],
+					"query": [
+						{
+							"key": "program",
+							"value": "Software%20Engineering%20and%20Management"
+						}
+					]
+				},
+				"description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+			},
+			"response": []
+		},
+		{
 			"name": "Post Program 201",
 			"event": [
 				{
@@ -404,7 +448,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"programName\": \"Random Test Program\",\n    \"programCode\": \"00000\",\n    \"programUniversity\": \"Test\",\n    \"programDescription\": \"Just a Test\",\n    \"programPrerequisites\": [\"Math4\", \"Physics2\"],\n    \"programTuition\": 100000000\n}",
+					"raw": "{\n\t\"programName\": \"Random Test Program\",\n    \"programCode\": \"00000\",\n    \"programUniversity\": \"Test\",\n    \"programDescription\": \"Just a Test\",\n    \"programPrerequisites\": [\"Math4\", \"Physics2\"],\n    \"programTuition\": 100000000,\n    \"type\": \"이과\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -471,7 +515,7 @@
 							"});",
 							"",
 							"pm.test(\"Failure message is correct\", function () {",
-							"    pm.expect(pm.response.text()).to.include(\"존재하지 않는 자격요건:\");",
+							"    pm.expect(pm.response.text()).to.include(\"새로운 프로그램을 등록하기 위해서 다음 정보가 필요합니다:\");",
 							"})"
 						],
 						"type": "text/javascript",
@@ -491,6 +535,49 @@
 				"body": {
 					"mode": "raw",
 					"raw": "{\n\t\"programName\": \"Test Program\",\n    \"programCode\": \"00000\",\n    \"programUniversity\": \"Test University\",\n    \"programDescription\": \"Just a Test\",\n    \"programPrerequisites\": [\"Math4\", \"Magic2\"],\n    \"programTuition\": 100000000\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/programs",
+				"description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+			},
+			"response": []
+		},
+		{
+			"name": "Post Program 400 (programType)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"Failure message is correct\", function () {",
+							"    pm.expect(pm.response.text()).to.include(\"존재하지 않는 게열입니다.\");",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"programName\": \"Test Program\",\n    \"programCode\": \"00000\",\n    \"programUniversity\": \"Test University\",\n    \"programDescription\": \"Just a Test\",\n    \"programPrerequisites\": [\"Math4\"],\n    \"programTuition\": 100000000,\n    \"type\": \"사과\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -533,7 +620,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"programName\": \"Software Engineering and Management\",\n    \"programCode\": \"N1SOF\",\n    \"programUniversity\": \"University of Gothenburg\",\n    \"programDescription\": \"A program where you learn about programming and management\",\n    \"programPrerequisites\": [\"Math3B\"],\n    \"programTuition\": 100\n}",
+					"raw": "{\n\t\"programName\": \"Software Engineering and Management\",\n    \"programCode\": \"N1SOF\",\n    \"programUniversity\": \"University of Gothenburg\",\n    \"programDescription\": \"A program where you learn about programming and management\",\n    \"programPrerequisites\": [\"Math3B\"],\n    \"programTuition\": 100,\n    \"type\": \"이과\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
