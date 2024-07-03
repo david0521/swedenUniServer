@@ -36,6 +36,54 @@ router.get("/", async (req, res) => {
 });
 
 /**
+ * Get /programs/search
+ * @summary Returns programs based on search criteria
+ * @tags programs
+ * @return {object} 200 - Success response
+ * @return {object} 404 - No programs found
+ */
+router.get("/search", async (req, res) => {
+    try {
+        const { programName, programType, meritPoint, tuition, prerequisites } = req.query;
+
+        console.log(req.query)
+
+        // Build the search criteria
+        let criteria = {};
+
+        if (programName) {
+            criteria.name = { $regex: new RegExp(programName, 'i') };
+        }
+        if (programType) {
+            criteria.type = programType;
+        }
+        if (meritPoint) {
+            criteria.meritPoint = { $gte: parseFloat(meritPoint) };
+        }
+        if (tuition) {
+            criteria.tuitionFee = { $lte: parseFloat(tuition) };
+        }
+        if (prerequisites) {
+            const prerequisitesArray = Array.isArray(prerequisites) ? prerequisites : [prerequisites];
+            criteria.prerequisite = { $all: prerequisitesArray };
+        }
+
+        const programs = await Programs.find(criteria);
+
+        if (programs.length === 0) {
+            // Translation: No programs found matching the criteria
+            return res.status(404).send("검색 조건에 맞는 프로그램이 없습니다.");
+        }
+
+        return res.status(200).json({ programs: programs });
+    } catch (err) {
+        console.error(err);
+        // Translation: An internal server error has occured
+        return res.status(500).send("시스템상 에러가 발생하였습니다.");
+    }
+});
+
+/**
  * Get /programs/name/{name}
  * @summary Returns a specific program
  * @tags programs
