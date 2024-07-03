@@ -6,6 +6,7 @@ const ProspectiveStudents = require('../schemas/prospectiveStudent.js');
 
 const authenticateJWT = require('../middlewares/jwtAuth.middle.js');
 const { authorizeUser, authorizeAdmin } = require('../middlewares/authorize.middle.js');
+const { searchProgram } = require('../services/searchFix.service.js')
 
 
 
@@ -31,6 +32,31 @@ router.get("/", async (req, res) => {
         // Translation: An internal server error has occured
         return res.status(500).send("시스템상 에러가 발생하였습니다.");
 
+    }
+});
+
+/**
+ * Get /programs/name/{name}
+ * @summary Returns a specific program
+ * @tags programs
+ * @return {object} 200 - Success response
+ * @return {object} 404 - Program not found
+ */
+router.get("/name/:name", async (req, res) => {
+    try {
+        const query = req.params.name;
+        const program = await searchProgram(query);
+
+        if (program.length === 0) {
+            // Translation: Program not found
+            return res.status(404).send("다음 이름으로 등록된 학과는 시스템에 존재하지 않습니다.")
+        }
+
+        return res.status(200).json({ programs: program });
+    } catch (err) {
+        console.error(err);
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다." });
     }
 });
 
