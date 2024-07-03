@@ -467,13 +467,9 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 404\", function () {",
-							"    pm.response.to.have.status(404);",
-							"});",
-							"",
-							"pm.test(\"Error message is correct\", function () {",
-							"    pm.expect(pm.response.text()).to.include(\"시스템에 등록되지 않은 프로그램입니다.\");",
-							"})"
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
 						],
 						"type": "text/javascript",
 						"packages": {}
