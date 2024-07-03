@@ -7,6 +7,7 @@ const ProspectiveStudents = require('../schemas/prospectiveStudent.js');
 const authenticateJWT = require('../middlewares/jwtAuth.middle.js');
 const { authorizeUser, authorizeAdmin } = require('../middlewares/authorize.middle.js');
 const { searchProgram } = require('../services/searchFix.service.js')
+const { processPrerequisites } = require('../services/prerequisite.service.js') 
 
 
 
@@ -43,45 +44,75 @@ router.get("/", async (req, res) => {
  * @return {object} 404 - No programs found
  */
 router.get("/search", async (req, res) => {
+    const searchParams = req.query;
+
+    const { prerequisitesArray, invalidPrerequisites } = processPrerequisites(searchParams.prerequisites || []);
+
+    if (invalidPrerequisites.length > 0) {
+        return res.status(400).json({ error: "존재하지 않는 자격요건: " + invalidPrerequisites.join(", ") });
+    }
+
     try {
-        const { programName, programType, meritPoint, tuition, prerequisites } = req.query;
+        const query = {};
+        const pipeline = [];
 
-        console.log(req.query)
-
-        // Build the search criteria
-        let criteria = {};
-
-        if (programName) {
-            criteria.name = { $regex: new RegExp(programName, 'i') };
+        if (searchParams.programName) {
+            query.name = searchParams.programName;
         }
-        if (programType) {
-            criteria.type = programType;
+        if (searchParams.programType) {
+            query.type = searchParams.programType;
         }
-        if (meritPoint) {
-            criteria.meritPoint = { $gte: parseFloat(meritPoint) };
+        if (searchParams.meritPoint) {
+            query.meritPoint = { $gte: parseFloat(searchParams.meritPoint) };
         }
-        if (tuition) {
-            criteria.tuitionFee = { $lte: parseFloat(tuition) };
-        }
-        if (prerequisites) {
-            const prerequisitesArray = Array.isArray(prerequisites) ? prerequisites : [prerequisites];
-            criteria.prerequisite = { $all: prerequisitesArray };
+        if (searchParams.tuition) {
+            query.tuitionFee = { $lte: parseFloat(searchParams.tuition) };
         }
 
-        const programs = await Programs.find(criteria);
-
-        if (programs.length === 0) {
-            // Translation: No programs found matching the criteria
-            return res.status(404).send("검색 조건에 맞는 프로그램이 없습니다.");
+        if (prerequisitesArray.length > 0) {
+            pipeline.push(
+                { $match: { prerequisite: { $exists: true } } },
+                {
+                    $project: {
+                        name: 1,
+                        type: 1,
+                        universityName: 1,
+                        meritPoint: 1,
+                        tuitionFee: 1,
+                        prerequisite: 1,
+                        prerequisiteIsMet: {
+                            $setIsSubset: ["$prerequisite", prerequisitesArray]
+                        }
+                    }
+                },
+                { $match: { prerequisiteIsMet: true } }
+            );
         }
 
-        return res.status(200).json({ programs: programs });
+        if (Object.keys(query).length > 0) {
+            if (pipeline.length > 0) {
+                pipeline.unshift({ $match: query });
+            } else {
+                pipeline.push({ $match: query });
+            }
+        }
+
+        let programs;
+
+        if (pipeline.length > 0) {
+            programs = await Programs.aggregate(pipeline);
+        } else {
+            programs = await Programs.find(query);
+        }
+
+        return res.status(200).json({ programs });
+
     } catch (err) {
         console.error(err);
-        // Translation: An internal server error has occured
-        return res.status(500).send("시스템상 에러가 발생하였습니다.");
+        return res.status(500).json({ error: "시스템상 에러가 발생하였습니다." });
     }
 });
+
 
 /**
  * Get /programs/name/{name}
