@@ -26,4 +26,6 @@ const universitySchema = new Schema({
     ]
 });
 
+universitySchema.index({ name: 'text' });
+
 module.exports = mongoose.model("University", universitySchema);

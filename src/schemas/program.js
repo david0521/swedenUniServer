@@ -50,4 +50,6 @@ const programSchema = new Schema({
 
 });
 
+programSchema.index({ name: 'text' });
+
 module.exports = mongoose.model("program", programSchema);

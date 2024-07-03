@@ -5,6 +5,7 @@ const ProspectiveStudents = require("../schemas/prospectiveStudent.js")
 
 const authenticateJWT = require('../middlewares/jwtAuth.middle.js')
 const { authorizeUser, authorizeAdmin } = require('../middlewares/authorize.middle.js');
+const { searchUniversity } = require('../services/searchFix.service.js')
 
 /**
  * Get /universities
@@ -75,9 +76,10 @@ router.get("/byCity", async (req, res) => {
  */
 router.get("/name/:name", async (req, res) => {
     try {
-         const university = await Universities.findOne({name: req.params.name});
+        const query = req.params.name;
+        const university = await searchUniversity(query);
 
-        if (university == null) {
+        if (university.length === 0) {
             // Translation: University not found
             return res.status(404).send("다음 이름으로 등록된 대학교는 존재하지 않습니다.")
         }
