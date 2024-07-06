@@ -10,7 +10,6 @@ const { searchProgram } = require('../services/searchFix.service.js')
 const { processPrerequisites } = require('../services/prerequisite.service.js') 
 
 
-
 /**
  * Get /programs
  * @summary Returns all programs
@@ -53,20 +52,28 @@ router.get("/search", async (req, res) => {
     }
 
     try {
-        const query = {};
+        let programs = [];
         const pipeline = [];
 
+        // Use the fuzzy search service if programName is provided
         if (searchParams.programName) {
-            query.name = searchParams.programName;
+            programs = await searchProgram(searchParams.programName);
         }
-        if (searchParams.programType) {
-            query.type = searchParams.programType;
-        }
-        if (searchParams.meritPoint) {
-            query.meritPoint = { $gte: parseFloat(searchParams.meritPoint) };
-        }
-        if (searchParams.tuition) {
-            query.tuitionFee = { $lte: parseFloat(searchParams.tuition) };
+
+        // If programs are found via fuzzy search, use them in the pipeline
+        if (programs.length > 0) {
+            const programIds = programs.map(p => p._id);
+            pipeline.push({ $match: { _id: { $in: programIds } } });
+        } else {
+            if (searchParams.programType) {
+                pipeline.push({ $match: { type: searchParams.programType } });
+            }
+            if (searchParams.meritPoint) {
+                pipeline.push({ $match: { meritPoint: { $gte: parseFloat(searchParams.meritPoint) } } });
+            }
+            if (searchParams.tuition) {
+                pipeline.push({ $match: { tuitionFee: { $lte: parseFloat(searchParams.tuition) } } });
+            }
         }
 
         if (prerequisitesArray.length > 0) {
@@ -89,23 +96,15 @@ router.get("/search", async (req, res) => {
             );
         }
 
-        if (Object.keys(query).length > 0) {
-            if (pipeline.length > 0) {
-                pipeline.unshift({ $match: query });
-            } else {
-                pipeline.push({ $match: query });
-            }
-        }
-
-        let programs;
+        let resultPrograms;
 
         if (pipeline.length > 0) {
-            programs = await Programs.aggregate(pipeline);
+            resultPrograms = await Programs.aggregate(pipeline);
         } else {
-            programs = await Programs.find(query);
+            resultPrograms = await Programs.find({});
         }
 
-        return res.status(200).json({ programs });
+        return res.status(200).json({ programs: resultPrograms });
 
     } catch (err) {
         console.error(err);
