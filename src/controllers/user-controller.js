@@ -158,7 +158,7 @@ router.get("/:id/prospective/programs", authenticateJWT, authorizeUser, async (r
         else {
             const programs = await Program.find({
                 _id: { $in: user.interestedPrograms }
-            }).select("name ,_id");
+            })
             return res.status(200).json({ programs })
         }
     

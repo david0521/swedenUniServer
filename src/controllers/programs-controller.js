@@ -7,7 +7,7 @@ const ProspectiveStudents = require('../schemas/prospectiveStudent.js');
 const authenticateJWT = require('../middlewares/jwtAuth.middle.js');
 const { authorizeUser, authorizeAdmin } = require('../middlewares/authorize.middle.js');
 const { searchProgram } = require('../services/searchFix.service.js')
-
+const { processPrerequisites } = require('../services/prerequisite.service.js') 
 
 
 /**
@@ -34,6 +34,84 @@ router.get("/", async (req, res) => {
 
     }
 });
+
+/**
+ * Get /programs/search
+ * @summary Returns programs based on search criteria
+ * @tags programs
+ * @return {object} 200 - Success response
+ * @return {object} 404 - No programs found
+ */
+router.get("/search", async (req, res) => {
+    const searchParams = req.query;
+
+    const { prerequisitesArray, invalidPrerequisites } = processPrerequisites(searchParams.prerequisites || []);
+
+    if (invalidPrerequisites.length > 0) {
+        return res.status(400).json({ error: "존재하지 않는 자격요건: " + invalidPrerequisites.join(", ") });
+    }
+
+    try {
+        let programs = [];
+        const pipeline = [];
+
+        // Use the fuzzy search service if programName is provided
+        if (searchParams.programName) {
+            programs = await searchProgram(searchParams.programName);
+        }
+
+        // If programs are found via fuzzy search, use them in the pipeline
+        if (programs.length > 0) {
+            const programIds = programs.map(p => p._id);
+            pipeline.push({ $match: { _id: { $in: programIds } } });
+        } else {
+            if (searchParams.programType) {
+                pipeline.push({ $match: { type: searchParams.programType } });
+            }
+            if (searchParams.meritPoint) {
+                pipeline.push({ $match: { meritPoint: { $gte: parseFloat(searchParams.meritPoint) } } });
+            }
+            if (searchParams.tuition) {
+                pipeline.push({ $match: { tuitionFee: { $lte: parseFloat(searchParams.tuition) } } });
+            }
+        }
+
+        if (prerequisitesArray.length > 0) {
+            pipeline.push(
+                { $match: { prerequisite: { $exists: true } } },
+                {
+                    $project: {
+                        name: 1,
+                        type: 1,
+                        universityName: 1,
+                        meritPoint: 1,
+                        tuitionFee: 1,
+                        prerequisite: 1,
+                        prerequisiteIsMet: {
+                            $setIsSubset: ["$prerequisite", prerequisitesArray]
+                        }
+                    }
+                },
+                { $match: { prerequisiteIsMet: true } }
+            );
+        }
+
+        let resultPrograms;
+
+        if (pipeline.length > 0) {
+            resultPrograms = await Programs.aggregate(pipeline);
+        } else {
+            resultPrograms = await Programs.find({});
+        }
+
+        return res.status(200).json({ programs: resultPrograms });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "시스템상 에러가 발생하였습니다." });
+    }
+});
+
 
 /**
  * Get /programs/name/{name}
