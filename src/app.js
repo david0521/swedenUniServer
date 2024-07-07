@@ -8,6 +8,7 @@ const ProgramController = require("./controllers/programs-controller");
 const UserController = require("./controllers/user-controller");
 const ConsentController = require("./controllers/consentForm-controller");
 const AuthController = require("./controllers/auth-controller");
+const RecordController = require("./controllers/record-controller")
 
 const app = express();
 require('dotenv').config()
@@ -45,11 +46,12 @@ app.get('/api', (req, res) => {
   res.send('Swediversity API is running');
 });
 
-app.use("/api/universities", UniversityController)
+app.use("/api/universities", UniversityController);
 app.use("/api/programs", ProgramController);
 app.use("/api/users", UserController);
 app.use("/api/consents", ConsentController);
-app.use("/api/auth", AuthController)
+app.use("/api/auth", AuthController);
+app.use("/api/records", RecordController);
 
 app.listen(port, function (err) {
   if (err) throw err;

@@ -13,9 +13,9 @@ const Schema = mongoose.Schema;
  */
 
 const recordSchema = new Schema ({
-    programCode: {
+    programName: {
         type: String,
-        required: [true, "Program code must be registered."]
+        required: [true, "Program name must be registered."]
     },
     minScore: {
         type: Number,
