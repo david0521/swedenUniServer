@@ -72,6 +72,11 @@ jobs:
           cd src/PostmanCollection
           newman run "University.postman_collection.json" -e "test.postman_environment.json" -r cli,htmlextra --reporter-htmlextra-export ../../TestArtifacts/UniversityReport.html
 
+      - name: Run Record Tests
+        run: |
+          cd src/PostmanCollection
+          newman run "Record.postman_collection.json" -e "test.postman_environment.json" -r cli,htmlextra --reporter-htmlextra-export ../../TestArtifacts/RecordReport.html
+
       - name: Run Program Tests
         run: |
           cd src/PostmanCollection

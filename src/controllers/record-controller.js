@@ -6,33 +6,6 @@ const authenticateJWT = require('../middlewares/jwtAuth.middle.js')
 const { authorizeAdmin } = require('../middlewares/authorize.middle.js')
 
 /**
- * Get /{programName}
- * @summary Returns all past records for a specific program
- * @tags records
- * @return {object} 200 - Success response
- * @return {object} 404 - No consent forms registered
- */
-router.get("/:programName", async (req, res) => {
-    try {
-        const programName = req.body.program;
-        const records = await Records.find({programName: programName});
-
-        if (records.length === 0) {
-            return res.status(200).json({ message: "아직 기록이 등록되지 않았습니다." })
-        }
-
-        else {
-            return res.status(200).json({ records: records });
-        }
-    } catch (err) {
-        console.log(err);
-        // Translation: An internal server error has occured
-        return res.status(500).send("시스템상 오류가 발생하였습니다.")
-
-    }
-});
-
-/**
  * Post /
  * @summary Save records for each of the programs
  * @tags records
@@ -74,7 +47,8 @@ router.post("/", authenticateJWT, authorizeAdmin, async (req, res) => {
         );
 
         return res.status(200).json({
-            message: "성공적으로 등록되었습니다."
+            message: "성공적으로 등록되었습니다.",
+            programId: record
         })
         
     } catch (err) {
@@ -86,16 +60,17 @@ router.post("/", authenticateJWT, authorizeAdmin, async (req, res) => {
 });
 
 /**
- * Get /{programName}
+ * Get /name/{programName}
  * @summary Returns all past records for a specific program
  * @tags records
  * @return {object} 200 - Success response
  * @return {object} 404 - No consent forms registered
  */
-router.get("/:programName", async (req, res) => {
+router.get("/name/:programName", async (req, res) => {
     try {
-        const programName = req.body.program;
-        const records = await Records.find({programName: programName});
+        const programName = req.params.programName;
+        console.log(programName)
+        const records = await Records.find({ programName: programName });
 
         if (records.length === 0) {
             return res.status(200).json({ message: "아직 기록이 등록되지 않았습니다." })
@@ -104,6 +79,28 @@ router.get("/:programName", async (req, res) => {
         else {
             return res.status(200).json({ records: records });
         }
+    } catch (err) {
+        console.log(err);
+        // Translation: An internal server error has occured
+        return res.status(500).send("시스템상 오류가 발생하였습니다.")
+
+    }
+});
+
+/**
+ * Delete /id/{id}
+ * @summary Deletes the relevant record
+ * @tags records
+ * @return {object} 200 - Success response
+ * @return {object} 404 - No consent forms registered
+ */
+router.delete("/id/:id", authenticateJWT, authorizeAdmin, async (req, res) => {
+    try {
+        const recordId = req.params.id
+        await Records.findByIdAndDelete(recordId)
+
+        return res.status(200).json({ message: '성공적으로 삭제하였습니다.' })
+
     } catch (err) {
         console.log(err);
         // Translation: An internal server error has occured
