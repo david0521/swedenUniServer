@@ -13,9 +13,9 @@ const Schema = mongoose.Schema;
  */
 
 const recordSchema = new Schema ({
-    programCode: {
+    programName: {
         type: String,
-        required: [true, "Program code must be registered."]
+        required: [true, "Program name must be registered."]
     },
     minScore: {
         type: Number,
@@ -37,10 +37,18 @@ const recordSchema = new Schema ({
         type: Number,
         required: [true, "Year of admission needs to be specified."]
     },
+    numOfFirstChoice: {
+        type: Number
+    },
+    round: {
+        type: String,
+        enum : ['round1','round2'],
+        required: [true, "Round needs to be specified."]
+    },
     selection: {
         type: String,
-        enum : ['Selection1','Selection2'],
-        required: [true, "Selection period needs to be specified."]
+        enum: ['selection1', 'selection2'],
+        required: [true, 'Selection period needs to be specified']
     },
     selectionGroup: {
         type: String,
