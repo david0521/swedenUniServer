@@ -133,7 +133,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"programName\": \"Test Program\",\n    \"minScore\": 20,\n    \"applicants\": 100,\n    \"qualified\": 50,\n    \"accepted\": 40,\n    \"year\": 2024,\n    \"selection\": \"Selection1\",\n    \"group\": \"B1\"\n}",
+					"raw": "{\n\t\"programName\": \"Test Program\",\n    \"minScore\": 20,\n    \"applicants\": 100,\n    \"qualified\": 50,\n    \"accepted\": 40,\n    \"year\": 2024,\n    \"round\": \"round1\",\n    \"selection\": \"selection1\",\n    \"group\": \"B1\",\n    \"firstApplicant\": 10\n}",
 					"options": {
 						"raw": {
 							"language": "json"

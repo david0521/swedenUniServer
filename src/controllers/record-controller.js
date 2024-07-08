@@ -14,16 +14,20 @@ const { authorizeAdmin } = require('../middlewares/authorize.middle.js')
  */
 router.post("/", authenticateJWT, authorizeAdmin, async (req, res) => {
     try {
+        console.log(res.body);
+
         const programName = req.body.programName;
         const minScore = req.body.minScore;
         const applicants = req.body.applicants;
         const qualified = req.body.qualified;
         const accepted = req.body.accepted;
         const year = req.body.year;
+        const round = req.body.round;
         const selection = req.body.selection;
         const group = req.body.group;
+        const number = req.body.firstApplicant
 
-        if (!programName || !minScore || !applicants || !qualified || !accepted || !year || !selection || !group) {
+        if (!programName || !minScore || !applicants || !qualified || !accepted || !year || !round || !group || !selection) {
             return res.status(400).json({ error: "기록을 등록하기 위해서는 다음 정보가 필요합니다: 학과명, 합격 점수, 지원자 수, 자격자 수, 년도, 셀렉션, 그룹" });
         }
 
@@ -34,8 +38,10 @@ router.post("/", authenticateJWT, authorizeAdmin, async (req, res) => {
             numOfQualified: qualified,
             acceptedApplicants: accepted,
             year: year,
+            round: round,
             selection: selection,
-            selectionGroup: group
+            selectionGroup: group,
+            numOfFirstChoice: number
         })
 
         await record.save();
