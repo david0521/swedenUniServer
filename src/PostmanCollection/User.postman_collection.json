@@ -374,7 +374,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\",\r\n        \"65fc0263a13ed67a8e461629\"\r\n    ]\r\n}",
+					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\"\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -386,19 +386,19 @@
 			"response": []
 		},
 		{
-			"name": "Add Program of Interest 403",
+			"name": "Add Program of Interest Already added 200",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 403\", function () {\r",
-							"    pm.response.to.have.status(403);\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
 							"});\r",
 							"\r",
 							"\r",
 							"pm.test(\"Error message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"이 기능을 사용할실 수 없습니다.\");\r",
+							"    pm.expect(pm.response.text()).to.include(\"이미 추가된 학과입니다.\");\r",
 							"})"
 						],
 						"type": "text/javascript",
@@ -417,14 +417,14 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\",\r\n        \"65fc0263a13ed67a8e461629\"\r\n    ]\r\n}",
+					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\"\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
 						}
 					}
 				},
-				"url": "{{host}}/users/6679378221c89e9c0c32b7b4/programs"
+				"url": "{{host}}/users/6679fc18824af438b7cabff9/programs"
 			},
 			"response": []
 		},
@@ -503,7 +503,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"universities\": [\r\n        \"65a83ef98dee45bb7cc34d13\",\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
+					"raw": "{\r\n    \"universities\": [\r\n        \"65a83ef98dee45bb7cc34d13\"\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -515,19 +515,19 @@
 			"response": []
 		},
 		{
-			"name": "Add University of Interest 403",
+			"name": "Add University of Interest Already added 200",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 403\", function () {\r",
-							"    pm.response.to.have.status(403);\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
 							"});\r",
 							"\r",
 							"\r",
-							"pm.test(\"Error message is correct\", function () {\r",
-							"    pm.expect(pm.response.text()).to.include(\"이 기능을 사용할실 수 없습니다.\");\r",
+							"pm.test(\"Success message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"이미 추가된 대학입니다.\");\r",
 							"})"
 						],
 						"type": "text/javascript",
@@ -546,14 +546,14 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"universities\": [\r\n        \"65a83ef98dee45bb7cc34d13\",\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
+					"raw": "{\r\n    \"universities\": [\r\n        \"65a83ef98dee45bb7cc34d13\"\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
 						}
 					}
 				},
-				"url": "{{host}}/users/6679378221c89e9c0c32b7b4/universities"
+				"url": "{{host}}/users/6679fc18824af438b7cabff9/universities"
 			},
 			"response": []
 		},
@@ -1008,14 +1008,56 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"universities\": [\r\n        \"65a83ef98dee45bb7cc34d13\",\r\n        \"65a8553002f9d15aecab308f\"\r\n    ]\r\n}",
+					"raw": "{\r\n    \"universities\": [\r\n        \"65a83ef98dee45bb7cc34d13\"\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
 						}
 					}
 				},
-				"url": "{{host}}/users/66792b2953dfc9253d6aa04c/universities"
+				"url": "{{host}}/users/6679fc18824af438b7cabff9/universities"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete University of Interest Already deleted 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"삭제할 대학이 없습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"universities\": [\r\n        \"65a83ef98dee45bb7cc34d13\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/6679fc18824af438b7cabff9/universities"
 			},
 			"response": []
 		},
@@ -1141,7 +1183,49 @@
 						}
 					}
 				},
-				"url": "{{host}}/users/66792b2953dfc9253d6aa04c/programs"
+				"url": "{{host}}/users/6679fc18824af438b7cabff9/programs"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Program of Interest Already Deleted 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Success message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"삭제할 프로그램이 없습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/6679fc18824af438b7cabff9/programs"
 			},
 			"response": []
 		},
