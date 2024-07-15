@@ -41,18 +41,14 @@ const programLikeStats = new Schema({
 })
 
 const universityLikeStats = new Schema({
-    universityName: {
-        type: String,
+    universityId: {
+        type: Schema.Types.ObjectId,
         required: true
     },
     numOfLikes: {
         type: Number,
         required: true
-    },
-    user: [{
-        type: Schema.Types.ObjectId,
-        required: true
-    }]
+    }
 })
 
 const StatisticBase = mongoose.model('StatisticBase', statisticBaseSchema);

@@ -276,14 +276,38 @@ router.post("/:id/universities", authenticateJWT, authorizeUser, async (req, res
         if (!prospective) {
             return res.status(404).json({ error: "존재하지 않는 학생입니다." })
         }
-        else if (prospective.__t != 'prospectiveStudent') {
-            return res.status(403).json({ error: "이 기능을 사용할실 수 없습니다." })
+        
+        const newUniversities = universities.filter(university => !prospective.interestedUniversities.includes(university._id.toString()));
+
+        if (newUniversities.length === 0) {
+            return res.status(200).json({
+                message: "이미 추가된 대학입니다."
+            })
         }
+
+        prospective.interestedUniversities.push(...universities);
+        await prospective.save();
+        
+        const universityStats = await UniversityLikeStats.findOne({ universityId: universityIds })
+
+        if (!universityStats) {
+            const newUniversityStats = new UniversityLikeStats ({
+                dateOfCreation: new Date(),
+                universityId: universityIds,
+                numOfLikes: 1
+            })
+
+            await newUniversityStats.save();
+        }
+
         else {
-            prospective.interestedUniversities.push(...universities);
-            await prospective.save();
-            res.status(200).json({ message: "성공적으로 등록하였습니다." })
-        } 
+            universityStats.numOfLikes++;
+            await universityStats.save();
+        }
+
+        return res.status(200).json({
+            message: "성공적으로 등록하였습니다."
+        })
 
     } catch (err) {
         console.error(err)
@@ -435,7 +459,7 @@ router.delete("/:id/programs", authenticateJWT, authorizeUser, async (req, res) 
         );
 
         if (programsToRemove.length === 0) {
-            return res.status(200).json({ error: "삭제할 프로그램이 없습니다." });
+            return res.status(200).json({ message: "삭제할 프로그램이 없습니다." });
         }
 
         prospective.interestedPrograms = prospective.interestedPrograms.filter(
@@ -487,15 +511,38 @@ router.delete("/:id/universities", authenticateJWT, authorizeUser, async (req, r
         else if (prospective.__t != 'prospectiveStudent') {
             return res.status(403).json({ error: "이 기능을 사용할실 수 없습니다." })
         }
-        
-        
+
+        const universityToRemove = prospective.interestedUniversities.filter(
+            universityId => universityIds.includes(universityId.toString())
+        );
+
+        if (universityToRemove.length === 0) {
+            return res.status(200).json({
+                message: "삭제할 대학이 없습니다."
+            })
+        }
+         
+        prospective.interestedUniversities = prospective.interestedUniversities.filter(
+            universityId => !universityIds.includes(universityId.toString())
+        );
+        await prospective.save();
+
+        const universityStats = await UniversityLikeStats.findOne({ universityId: universityIds })
+
+        if (!universityStats) {
+            return res.status(404).json({
+                error: "존재하지 않는 대학입니다."
+            })
+        }
+
         else {
-            prospective.interestedUniversities = prospective.interestedUniversities.filter(
-                universityId => !universityIds.includes(universityId.toString())
-            );
-            await prospective.save();
-            res.status(200).json({ message: "성공적으로 삭제하였습니다." })
-        }        
+            universityStats.numOfLikes--;
+            await universityStats.save();
+
+            return res.status(200).json({
+                message: "성공적으로 삭제하였습니다."
+            })
+        }
     } catch (err) {
         console.error(err)
         // Translation: An internal server error has occured

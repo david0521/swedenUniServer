@@ -2,6 +2,7 @@ const router = require("express").Router();
 
 const Universities = require("../schemas/university.js")
 const ProspectiveStudents = require("../schemas/prospectiveStudent.js")
+const { UniversityLikeStats } = require('../schemas/statistics.js')
 
 const authenticateJWT = require('../middlewares/jwtAuth.middle.js')
 const { authorizeUser, authorizeAdmin } = require('../middlewares/authorize.middle.js');
@@ -129,9 +130,15 @@ router.get("/prospective/university", async (req, res) => {
         
         const uniID = await Universities.findOne({ name: requestedUniversity }).select("_id");
 
-        const interestNumber = await ProspectiveStudents.countDocuments({ interestedUniversities: uniID });
+        const likes = await UniversityLikeStats.findOne({ universityId: uniID._id }).select("numOfLikes");
 
-        return res.status(200).json({message: interestNumber});
+        console.log(likes)
+
+        if (!likes) {
+            return res.status(200).json({ message: 0 })
+        } else {
+            return res.status(200).json({ message: likes.numOfLikes })
+        }
         
     } catch (err) {
         console.error(err);
