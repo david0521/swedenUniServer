@@ -374,7 +374,50 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\",\r\n        \"65fc0263a13ed67a8e461629\"\r\n    ]\r\n}",
+					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/6679fc18824af438b7cabff9/programs"
+			},
+			"response": []
+		},
+		{
+			"name": "Add Program of Interest Already added 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"pm.test(\"Error message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"이미 추가된 학과입니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\"\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -1141,7 +1184,49 @@
 						}
 					}
 				},
-				"url": "{{host}}/users/66792b2953dfc9253d6aa04c/programs"
+				"url": "{{host}}/users/6679fc18824af438b7cabff9/programs"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Program of Interest Already Deleted 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Success message is correct\", function () {\r",
+							"    pm.expect(pm.response.text()).to.include(\"삭제할 프로그램이 없습니다.\");\r",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{JWT}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"programs\": [\r\n        \"65fb79e7a459d4313988b392\"\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "{{host}}/users/6679fc18824af438b7cabff9/programs"
 			},
 			"response": []
 		},

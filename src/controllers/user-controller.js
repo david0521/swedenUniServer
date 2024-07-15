@@ -7,6 +7,8 @@ const { authorizeUser, authorizeAdmin } = require('../middlewares/authorize.midd
 const Users = require("../schemas/user.js");
 const University = require("../schemas/university.js");
 const Program = require("../schemas/program.js");
+const { ProgramLikeStats, UniversityLikeStats } = require("../schemas/statistics.js");
+const prospectiveStudent = require("../schemas/prospectiveStudent.js");
 
 require('dotenv').config()
 
@@ -210,22 +212,43 @@ router.get("/:id/grade", authenticateJWT, authorizeUser, async (req, res) => {
  */
 router.post("/:id/programs", authenticateJWT, authorizeUser, async (req, res) => {
     try {
-        const prospective = await Users.findById(req.params.id);
+        const prospective = await prospectiveStudent.findById(req.params.id);
         const programIds = req.body.programs;
 
         const programs = await Program.find({ _id: { $in:programIds }})
-
+        
         if (!prospective) {
             return res.status(404).json({ error: "존재하지 않는 학생입니다." })
         }
-        else if (prospective.__t != 'prospectiveStudent') {
-            return res.status(403).json({ error: "이 기능을 사용할실 수 없습니다." })
+        
+        const newPrograms = programs.filter(program => !prospective.interestedPrograms.includes(program._id.toString()));
+
+        if (newPrograms.length === 0) {
+            return res.status(200).json({
+                message: "이미 추가된 학과입니다."
+            })
+        }
+        // Add the interested program into the student's array of interested program objects
+        prospective.interestedPrograms.push(...programs);
+        await prospective.save();
+
+        // Increase number of likes for the program
+        const programStats = await ProgramLikeStats.findOne({ programId: programIds })
+
+        if (!programStats) {
+            const newProgramStats = new ProgramLikeStats ({
+                dateOfCreation: new Date(),
+                programId: programIds,
+                numOfLikes: 1
+            })
+
+            await newProgramStats.save();
         }
         else {
-            prospective.interestedPrograms.push(...programs);
-            await prospective.save();
-            res.status(200).json({ message: "성공적으로 등록하였습니다." })
+            programStats.numOfLikes++;
+            await programStats.save();
         }
+        return res.status(200).json({ message: "성공적으로 등록하였습니다." })
 
     } catch (err) {
         console.error(err)
@@ -398,6 +421,7 @@ router.delete("/:id/programs", authenticateJWT, authorizeUser, async (req, res) 
         const prospective = await Users.findById(req.params.id);
         const programIds = req.body.programs;
 
+
         if (!prospective) {
             return res.status(404).json({ error: "존재하지 않는 학생입니다." })
         }
@@ -406,13 +430,35 @@ router.delete("/:id/programs", authenticateJWT, authorizeUser, async (req, res) 
             return res.status(403).json({ error: "이 기능을 사용할실 수 없습니다." })
         }
         
+        const programsToRemove = prospective.interestedPrograms.filter(
+            programId => programIds.includes(programId.toString())
+        );
+
+        if (programsToRemove.length === 0) {
+            return res.status(200).json({ error: "삭제할 프로그램이 없습니다." });
+        }
+
+        prospective.interestedPrograms = prospective.interestedPrograms.filter(
+            programId => !programIds.includes(programId.toString())
+        );
+        await prospective.save();
+
+        // Decrease number of likes for the program
+        const programStats = await ProgramLikeStats.findOne({ programId: programIds })
+
+        if (!programStats) {
+            return res.status(404).json({
+                error: "존재하지 않는 프로그램입니다."
+            })
+        }
         else {
-            prospective.interestedPrograms = prospective.interestedPrograms.filter(
-                programId => !programIds.includes(programId.toString())
-            );
-            await prospective.save();
-            res.status(200).json({ message: "성공적으로 삭제하였습니다." })
-        }        
+            programStats.numOfLikes--;
+            await programStats.save();
+
+            return res.status(200).json({
+                message: "성공적으로 삭제하였습니다."
+            })
+        }       
     } catch (err) {
         console.error(err)
         // Translation: An internal server error has occured

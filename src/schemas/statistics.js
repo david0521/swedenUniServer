@@ -30,18 +30,14 @@ const minMeritStats = new Schema({
 })
 
 const programLikeStats = new Schema({
-    programName: {
-        type: String,
-        required: true,
+    programId: {
+        type: Schema.Types.ObjectId,
+        required: true
     },
     numOfLikes: {
         type: Number,
         required: true
-    },
-    user: [{
-        type: Schema.Types.ObjectId,
-        required: true
-    }]
+    }
 })
 
 const universityLikeStats = new Schema({
