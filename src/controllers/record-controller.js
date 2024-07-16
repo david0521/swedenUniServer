@@ -1,10 +1,24 @@
 const router = require("express").Router();
 const Records = require("../schemas/records.js");
 const Programs = require("../schemas/program.js")
+const { MinMeritStats } = require("../schemas/statistics.js");
 
 const authenticateJWT = require('../middlewares/jwtAuth.middle.js')
 const { authorizeAdmin } = require('../middlewares/authorize.middle.js')
+const { selectionGroupAvg } = require('../services/statistics.service.js')
 
+router.post("/allAvg", async (req, res) => {
+    try {
+        const programName = req.body.programName;
+        const selectionGroup = req.body.selectionGroup;
+        const round = req.body.round;
+
+        selectionGroupAvg(programName, selectionGroup, round);
+        res.status(200).json({ message: "성공" })
+    } catch (err) {
+        console.error(err)
+    }
+})
 /**
  * Post /
  * @summary Save records for each of the programs
@@ -46,11 +60,15 @@ router.post("/", authenticateJWT, authorizeAdmin, async (req, res) => {
 
         await record.save();
 
+        // Update program so that it stores the newly added admission record information.
         const program = await Programs.findOneAndUpdate(
             { name: programName },
             { $push: { records: record._id } },
             { new: true }
         );
+
+        // Update minimum merit score average information based on the newly added records.
+        selectionGroupAvg(programName, group, round);
 
         return res.status(200).json({
             message: "성공적으로 등록되었습니다.",
@@ -84,6 +102,33 @@ router.get("/name/:programName", async (req, res) => {
 
         else {
             return res.status(200).json({ records: records });
+        }
+    } catch (err) {
+        console.log(err);
+        // Translation: An internal server error has occured
+        return res.status(500).send("시스템상 오류가 발생하였습니다.")
+
+    }
+});
+
+/**
+ * Get /name/{programName}/avg
+ * @summary Returns average minimum merit points needed for the program
+ * @tags records
+ * @return {object} 200 - Success response
+ * @return {object} 404 - No consent forms registered
+ */
+router.get("/name/:programName/avg", async (req, res) => {
+    try {
+        const programName = req.params.programName;
+        const stats = await MinMeritStats.find({ programName: programName });
+
+        if (stats.length === 0) {
+            return res.status(200).json({ message: "아직 입시정보가 등록되지 않았습니다." })
+        }
+
+        else {
+            return res.status(200).json({ stats: stats });
         }
     } catch (err) {
         console.log(err);
