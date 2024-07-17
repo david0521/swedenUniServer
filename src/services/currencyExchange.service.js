@@ -4,10 +4,9 @@
  */
 require('dotenv').config()
 
-const { LocalStorage } = require('./localStorage.js');
+const { localStorageHandler } = require('./localStorage.js');
 
 const rapidAPI = process.env.RAPID_API_KEY;
-const localStorageHandler = new LocalStorage();
 
 async function fetchExchangeRate () {
     const url = 'https://currency-conversion-and-exchange-rates.p.rapidapi.com/convert?from=SEK&to=KRW&amount=1';

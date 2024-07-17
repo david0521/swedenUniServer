@@ -37,6 +37,8 @@ class LocalStorage {
     }
 }
 
+const localStorageHandler = new LocalStorage();
+
 module.exports = {
-    LocalStorage
+    localStorageHandler
 }
