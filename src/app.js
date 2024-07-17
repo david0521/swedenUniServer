@@ -13,6 +13,7 @@ const PostController = require("./controllers/post-controller");
 
 const app = express();
 require('dotenv').config()
+
 app.use(express.json());
 app.use(cors());
 
@@ -54,6 +55,8 @@ app.use("/api/consents", ConsentController);
 app.use("/api/auth", AuthController);
 app.use("/api/records", RecordController);
 app.use("/api/posts", PostController);
+
+require('./cronJob.js');
 
 app.listen(port, function (err) {
   if (err) throw err;
