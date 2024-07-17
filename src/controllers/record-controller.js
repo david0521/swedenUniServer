@@ -2,10 +2,12 @@ const router = require("express").Router();
 const Records = require("../schemas/records.js");
 const Programs = require("../schemas/program.js")
 const { MinMeritStats } = require("../schemas/statistics.js");
+const { localStorageHandler } = require('../services/localStorage.js');
 
 const authenticateJWT = require('../middlewares/jwtAuth.middle.js')
 const { authorizeAdmin } = require('../middlewares/authorize.middle.js')
 const { selectionGroupAvg } = require('../services/statistics.service.js')
+
 
 router.post("/allAvg", async (req, res) => {
     try {
@@ -137,6 +139,20 @@ router.get("/name/:programName/avg", async (req, res) => {
 
     }
 });
+
+router.get("/exchange-rate", async (req, res) => {
+    try {
+        const exchangeRate = localStorageHandler.getItem("exchangeRate");
+        
+        return res.status(200).json({
+            exchangeRate: exchangeRate
+        })
+    } catch (err) {
+        console.log(err);
+        // Translation: An internal server error has occured
+        return res.status(500).send("시스템상 오류가 발생하였습니다.")
+    }
+})
 
 /**
  * Delete /id/{id}
