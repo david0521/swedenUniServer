@@ -11,13 +11,11 @@ const Universities = require("./university")
 const universityStudentSchema = new Schema({
     studyingProgram:
     {
-        type: Schema.Types.ObjectId,
-        ref: Programs
+        type: String
     },
     studyingUniversity:
     {
-        type: Schema.Types.ObjectId,
-        ref: Universities
+        type: String
     }
 });
 

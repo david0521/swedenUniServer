@@ -56,7 +56,7 @@ app.use("/api/auth", AuthController);
 app.use("/api/records", RecordController);
 app.use("/api/posts", PostController);
 
-require('./cronJob.js');
+//require('./cronJob.js');
 
 app.listen(port, function (err) {
   if (err) throw err;
