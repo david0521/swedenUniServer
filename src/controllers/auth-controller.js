@@ -55,10 +55,11 @@ router.post("/login", async (req, res) => {
 
                 // Attributes to be returned to the user
                 const userId = user.id
+                const userType = user.__t
 
                 await Users.updateOne({ _id: user.id }, { refreshToken });
 
-                return res.json({ token, refreshToken, userId });
+                return res.json({ token, refreshToken, userId, userType });
             });
         })(req, res);
 

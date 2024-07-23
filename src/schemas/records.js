@@ -52,7 +52,7 @@ const recordSchema = new Schema ({
     },
     selectionGroup: {
         type: String,
-        enum: ['B1', 'B2', 'B1AV', 'B1BF', 'B2AV', 'B2BF'],
+        enum: ['B1', 'B2', 'B1AV', 'B1BF', 'B2AV', 'B2BF', 'B1AB', 'B2AB', 'AB1', 'BB1', 'AB2', 'BB2'],
         required: [true, "Selection group needs to be specified."]
     }
 })

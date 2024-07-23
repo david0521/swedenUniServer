@@ -24,8 +24,12 @@ const postSchema = new Schema ({
     },
     contentType: {
         type: String,
-        enum: ['administration', 'review', 'question'],
+        enum: ['administration', 'programReview', 'universityReview', 'question'],
         required: true
+    },
+    contentCategory: {
+        type: String,
+        enum: ['대학생활','학업', '학생문화']
     },
     content: {
         type: String,

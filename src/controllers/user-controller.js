@@ -3,12 +3,14 @@ const router = require("express").Router();
 const { encryptionHandler } = require('../services/encryption.service.js');
 const authenticateJWT = require('../middlewares/jwtAuth.middle.js');
 const { authorizeUser, authorizeAdmin } = require('../middlewares/authorize.middle.js');
+const { searchUniversity, searchProgram } = require('../services/searchFix.service.js')
 
 const Users = require("../schemas/user.js");
 const University = require("../schemas/university.js");
 const Program = require("../schemas/program.js");
 const { ProgramLikeStats, UniversityLikeStats } = require("../schemas/statistics.js");
 const prospectiveStudent = require("../schemas/prospectiveStudent.js");
+const UniversityStudents = require("../schemas/universityStudent.js");
 
 require('dotenv').config()
 
@@ -394,6 +396,91 @@ router.post("/modify/:id/prerequisites", authenticateJWT, authorizeUser, async (
             user.prerequisite = prerequisites;
             user.save();
             res.status(200).json({ message: "성공적으로 변경하였습니다." });
+        }
+
+    } catch (err) {
+        console.error(err)
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다."})
+    }
+});
+
+/**
+ * Post /modifyInfo/{id}/university
+ * @summary Adds the university that a student is studying at
+ * @tags users
+ * @return {object} 200 - Success response
+ * @return {object} 400 - Wrong merit point range
+ * @return {object} 403 - Not a prospective student
+ * @return {object} 404 - Student not found
+ * @return {object} 500 - Internal server error
+ */
+router.post("/modify/:id/university", async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const uniName = req.body.uniName;
+
+        const user = await UniversityStudents.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: "존재하지 않는 회원입니다." })
+        }
+
+        const university = await searchUniversity(uniName);
+
+        if (university.length === 0) {
+            return res.status(400).json({ 
+                error: "존재하지 않는 대학입니다."
+            })
+        }
+
+        else {
+            user.studyingUniversity = university[0].name;
+            user.save();
+            console.log(user.studyingUniversity)
+            return res.status(200).json({ message: "성공적으로 변경하였습니다." });
+        }
+
+    } catch (err) {
+        console.error(err)
+        // Translation: An internal server error has occured
+        return res.status(500).json({ error: "시스템상 오류가 발생하였습니다."})
+    }
+});
+
+/**
+ * Post /modifyInfo/{id}/program
+ * @summary Adds the program that a student is studying at
+ * @tags users
+ * @return {object} 200 - Success response
+ * @return {object} 400 - Wrong merit point range
+ * @return {object} 403 - Not a prospective student
+ * @return {object} 404 - Student not found
+ * @return {object} 500 - Internal server error
+ */
+router.post("/modify/:id/program", async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const programName = req.body.programName;
+
+        const user = await UniversityStudents.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ error: "존재하지 않는 회원입니다." })
+        }
+
+        const program = await searchProgram(programName)
+
+        if (program.length === 0) {
+            return res.status(400).json({ 
+                error: "존재하지 않는 학과입니다."
+            })
+        }
+
+        else {
+            user.studyingProgram = program[0].name;
+            user.save();
+            return res.status(200).json({ message: "성공적으로 변경하였습니다." });
         }
 
     } catch (err) {

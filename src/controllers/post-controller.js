@@ -37,6 +37,40 @@ router.get("/contentType/:contentType", async (req, res) => {
 });
 
 /**
+ * Get /userId/{userId}
+ * @summary Returns all contents belonging to a certain user
+ * @tags post
+ * @return {object} 200 - Success response
+ * @return {object} 404 - No consent forms registered
+ */
+router.get("/userId/:userId", authenticateJWT, authorizeUser, async (req, res) => {
+    try {
+        const contentType = req.query.type;
+        const user = req.params.userId;
+
+        const contents = await Post.find({ author: user, contentType: contentType });
+
+        console.log(contents)
+
+        if (contents.length === 0) {
+            return res.status(200).json({
+                message: "작성하신 게시물이 없습니다."
+            })
+        }
+        
+        return res.status(200).json({
+            contents: contents,
+            message: "성공적으로 불러왔습니다."
+        }) 
+    } catch (err) {
+        console.log(err);
+        // Translation: An internal server error has occured
+        return res.status(500).send("시스템상 오류가 발생하였습니다.")
+
+    }
+});
+
+/**
  * Get /contentId/{id}
  * @summary Returns a specific content based on the mongoose id
  * @tags post
@@ -79,7 +113,7 @@ router.post("/contentType/:contentType/userId/:userId", authenticateJWT, authori
         const userID = req.params.userId;
         const body = req.body;
 
-        if (!['review', 'question'].includes(contentType)) {
+        if (!['universityReview', 'programReview', 'question'].includes(contentType)) {
             return res.status(400).json({
                 error: "게시물의 종류는 다음 중 하나여야합니다: administration, review, question"
             });
@@ -104,6 +138,7 @@ router.post("/contentType/:contentType/userId/:userId", authenticateJWT, authori
             author: user,
             timeStamp: Date.now(),
             contentType: contentType,
+            contentCategory: body.category,
             content: body.content
         })
 
