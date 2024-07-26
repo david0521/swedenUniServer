@@ -22,19 +22,45 @@ const postSchema = new Schema ({
         type: Date,
         required: true
     },
-    contentType: {
+    content: {
         type: String,
-        enum: ['administration', 'programReview', 'universityReview', 'question'],
+        required: true
+    },
+    likes: {
+        type: Number,
+        default: 0
+    }
+})
+
+const programPost = new Schema ({
+    programName: {
+        type: String,
         required: true
     },
     contentCategory: {
         type: String,
-        enum: ['대학생활','학업', '학생문화']
-    },
-    content: {
-        type: String,
-        required: true
+        enum: ['학과생활', '학업', '학생문화', '지원과정']
     }
 })
 
-module.exports = mongoose.model("Post", postSchema);
+const uniPost = new Schema ({
+    uniName: {
+        type: String,
+        required: true
+    },
+    contentCategory: {
+        type: String,
+        enum: ['대학생활', '캠퍼스', '학생문화']
+    }
+})
+
+const PostSchema = mongoose.model('PostSchema', postSchema);
+
+const ProgramPost = PostSchema.discriminator('ProgramPost', programPost);
+const UniversityPost = PostSchema.discriminator('UniversityPost', uniPost);
+
+module.exports = {
+    PostSchema,
+    ProgramPost,
+    UniversityPost
+}
