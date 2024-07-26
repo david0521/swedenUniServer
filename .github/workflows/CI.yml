@@ -1,23 +1,16 @@
-name: CI
+name: CI/CD Pipeline
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches:
       - "*"
   pull_request:
     branches:
       - "*"
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
     steps:
@@ -26,13 +19,11 @@ jobs:
       - name: Create dir
         run: mkdir TestArtifacts
 
-      # Install Node on the runner
       - name: Node Installation
         uses: actions/setup-node@v3
         with:
           node-version: "18.x"
 
-      # Install dependencies
       - name: Dependency Installation
         run: npm install
 
@@ -47,10 +38,9 @@ jobs:
           echo "HOST_ID=${{ secrets.HOST_ID }}" >> .env
           echo "HOST_EMAIL=${{ secrets.HOST_EMAIL }}" >> .env
           echo "ENCRYPTION_SECRET=${{ secrets.ENCRYPTION_SECRET }}" >> .env
-          echo "RAPID_API_SECRET=${{ secrets.RAPID_API_KEY }}" >> .env
+          echo "RAPID_API_KEY=${{ secrets.RAPID_API_KEY }}" >> .env
           cat .env
 
-      # Install Newman globally
       - name: Newman Installation
         run: |
           npm install -g newman
@@ -101,12 +91,17 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Copy files to VM
-        run: scp -r ./* ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:/path/to/your/app
+        run: |
+          scp -r ./* ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:/home/swediversityAdmin/swedenUniServer
+
+      - name: Copy .env to VM
+        run: |
+          scp .env ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:/home/swediversityAdmin/swedenUniServer
 
       - name: SSH into VM and deploy
         run: |
           ssh ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }} << 'EOF'
-            cd /path/to/your/app
+            cd /home/swediversityAdmin/swedenUniServer
             npm install
             npm run build
             pm2 restart your-app
