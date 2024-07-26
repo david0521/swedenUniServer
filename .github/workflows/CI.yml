@@ -92,16 +92,16 @@ jobs:
 
       - name: Copy files to VM
         run: |
-          scp -r ./* ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:/home/swediversityAdmin/swedenUniServer
+          scp -r ./* ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:/home/${{ secrets.VM_USERNAME }}/swedenUniServer
 
       - name: Copy .env to VM
         run: |
-          scp .env ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:/home/swediversityAdmin/swedenUniServer
+          scp .env ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:/home/${{ secrets.VM_USERNAME }}/swedenUniServer
 
       - name: SSH into VM and deploy
         run: |
           ssh ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }} << 'EOF'
-            cd /home/swediversityAdmin/swedenUniServer
+            cd /home/${{ secrets.VM_USERNAME }}/swedenUniServer
             npm install
             npm run build
             pm2 restart your-app
