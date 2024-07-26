@@ -94,14 +94,14 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Copy files to VM
-        run: |
-          scp -r ./* ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:/home/${{ secrets.VM_USERNAME }}/swedenUniServer
-
+          
       - name: Copy .env to VM
         run: |
           scp .env ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:/home/${{ secrets.VM_USERNAME }}/swedenUniServer
+          
+      - name: Copy files to VM
+        run: |
+          scp -r ./* ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:/home/${{ secrets.VM_USERNAME }}/swedenUniServer
 
       - name: SSH into VM and deploy
         run: |
