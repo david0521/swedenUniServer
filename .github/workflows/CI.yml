@@ -85,6 +85,11 @@ jobs:
           path: TestArtifacts
 
       # Deploy steps
+      - name: Add VM to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+          
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
