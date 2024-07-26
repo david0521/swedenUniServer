@@ -1,23 +1,53 @@
 const router = require("express").Router();
 
-const Post = require("../schemas/post.js");
+const { PostSchema, ProgramPost, UniversityPost } = require("../schemas/post.js");
 const User = require("../schemas/user.js");
 
 const authenticateJWT = require('../middlewares/jwtAuth.middle.js')
 const { authorizeUser, authorizeAdmin } = require('../middlewares/authorize.middle.js')
 
 /**
- * Get /contentType/{contentType}
- * @summary Returns all contents with the same contentType's title and mongoose id
+ * Get /uniPost/{uniName}
+ * @summary Returns all posts belonging to the same university
  * @tags post
  * @return {object} 200 - Success response
  * @return {object} 404 - No consent forms registered
  */
-router.get("/contentType/:contentType", async (req, res) => {
+router.get("/uniPost", async (req, res) => {
     try {
-        const contentType = req.params.contentType;
+        const uniName = req.query.uniName;
 
-        const content = await Post.find({ contentType: contentType }).select("title _id");
+        const content = await UniversityPost.find({ uniName: uniName }).select("title timeStamp likes _id contentCategory");
+
+        if (content.length === 0) {
+            return res.status(404).json({ error: "아직 업로드 된 게시물이 없습니다." });
+        }
+
+        return res.status(200).json({ 
+            post: content,
+            message: "성공적으로 불러왔습니다."
+        });
+        
+    } catch (err) {
+        console.log(err);
+        // Translation: An internal server error has occured
+        return res.status(500).send("시스템상 오류가 발생하였습니다.")
+
+    }
+});
+
+/**
+ * Get /programPost/{programName}
+ * @summary Returns all posts belonging to the same program
+ * @tags post
+ * @return {object} 200 - Success response
+ * @return {object} 404 - No consent forms registered
+ */
+router.get("/programPost", async (req, res) => {
+    try {
+        const programName = req.query.programName;
+
+        const content = await ProgramPost.find({ programName: programName }).select("title timeStamp likes _id contentCategory");
 
         if (content.length === 0) {
             return res.status(404).json({ error: "아직 업로드 된 게시물이 없습니다." });
@@ -48,7 +78,7 @@ router.get("/userId/:userId", authenticateJWT, authorizeUser, async (req, res) =
         const contentType = req.query.type;
         const user = req.params.userId;
 
-        const contents = await Post.find({ author: user, contentType: contentType });
+        const contents = await PostSchema.find({ author: user, __t: contentType });
 
         console.log(contents)
 
@@ -81,7 +111,7 @@ router.get("/contentId/:id", async (req, res) => {
     try {
         const contentId = req.params.id;
 
-        const content = await Post.findById(contentId);
+        const content = await PostSchema.findById(contentId);
 
         if (!content) {
             return res.status(404).json({ error: "존재하지 않는 게시물입니다." });
@@ -113,7 +143,7 @@ router.post("/contentType/:contentType/userId/:userId", authenticateJWT, authori
         const userID = req.params.userId;
         const body = req.body;
 
-        if (!['universityReview', 'programReview', 'question'].includes(contentType)) {
+        if (!['universityReview', 'programReview'].includes(contentType)) {
             return res.status(400).json({
                 error: "게시물의 종류는 다음 중 하나여야합니다: administration, review, question"
             });
@@ -127,20 +157,36 @@ router.post("/contentType/:contentType/userId/:userId", authenticateJWT, authori
             })
         }
 
-        if (!body.title || !user || !contentType || !body.content) {
+        if (!body.title || !user || !body.content) {
             return res.status(400).json({
-                error: "게시물을 작성하기 위해서 다음 정보가 모두 필요합니다: title, author, contentType, content"
+                error: "게시물을 작성하기 위해서 다음 정보가 모두 필요합니다: title, author, content"
             })
         }
+        
+        let newContent;
 
-        const newContent = new Post({
-            title: body.title,
-            author: user,
-            timeStamp: Date.now(),
-            contentType: contentType,
-            contentCategory: body.category,
-            content: body.content
-        })
+        switch (contentType) {
+            case 'universityReview':
+                newContent = new UniversityPost({
+                    title: body.title,
+                    author: user._id,
+                    timeStamp: Date.now(),
+                    content: body.content,
+                    uniName: body.uniName,
+                    contentCategory: body.category
+                });
+                break;
+            case 'programReview': 
+                newContent = new ProgramPost({
+                    title: body.title,
+                    author: user._id,
+                    timeStamp: Date.now(),
+                    content: body.content,
+                    programName: body.programName,
+                    contentCategory: body.category
+                })
+                break;
+        }
 
         await newContent.save()
 
@@ -178,9 +224,8 @@ router.post("/adminContent/userId/:userId", authenticateJWT, authorizeAdmin, asy
 
         const newContent = new Post({
             title: body.title,
-            author: user,
+            author: user._id,
             timeStamp: Date.now(),
-            contentType: "administration",
             content: body.content
         })
 
@@ -210,7 +255,7 @@ router.delete("/contentId/:id", authenticateJWT, authorizeUser, async (req, res)
     try {
         const contentId = req.params.id;
 
-        const content = await Post.findById(contentId);
+        const content = await PostSchema.findById(contentId);
 
         if (!content) {
             return res.status(404).json({
@@ -218,7 +263,7 @@ router.delete("/contentId/:id", authenticateJWT, authorizeUser, async (req, res)
             })
         }
 
-        await Post.deleteOne(content);
+        await PostSchema.deleteOne(content);
         return res.status(200).json({
             message: "성공적으로 삭제하였습니다."
         })
