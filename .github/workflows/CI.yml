@@ -20,7 +20,6 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Add mongoDB as a service
     steps:
       - uses: actions/checkout@v3
 
@@ -94,3 +93,22 @@ jobs:
         with:
           name: Reports
           path: TestArtifacts
+
+      # Deploy steps
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Copy files to VM
+        run: scp -r ./* ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }}:/path/to/your/app
+
+      - name: SSH into VM and deploy
+        run: |
+          ssh ${{ secrets.VM_USERNAME }}@${{ secrets.VM_HOST }} << 'EOF'
+            cd /path/to/your/app
+            npm install
+            npm run build
+            pm2 restart your-app
+            exit
+          EOF
