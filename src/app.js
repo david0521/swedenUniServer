@@ -3,6 +3,9 @@ const session = require('express-session');
 const passport = require('passport');
 const mongoose = require("mongoose")
 const cors = require("cors");
+const fs = require('fs');
+const https = require('https');
+const path = require('path');
 const UniversityController = require("./controllers/university-controller");
 const ProgramController = require("./controllers/programs-controller");
 const UserController = require("./controllers/user-controller");
@@ -19,7 +22,7 @@ app.use(cors());
 
 const mongoURI = process.env.MONGODB_URI;
 const jwtSecret = process.env.JWT_SECRET;
-const port = 3000;
+const port = 443;
 
 app.use(session({
   secret: jwtSecret,
@@ -56,9 +59,21 @@ app.use("/api/auth", AuthController);
 app.use("/api/records", RecordController);
 app.use("/api/posts", PostController);
 
-//require('./cronJob.js');
+require('./cronJob.js');
 
+const sslOptions = {
+  key: fs.readFileSync('/etc/letsencrypt/live/swediversity.norwayeast.cloudapp.azure.com/privkey.pem'), // Key to SSL certificate
+  cert: fs.readFileSync('/etc/letsencrypt/live/swediversity.norwayeast.cloudapp.azure.com/fullchain.pem') // SSL certificate
+};
+
+https.createServer(sslOptions, app).listen(port, function (err) {
+  if (err) throw err;
+  console.log(`Backend: http://localhost:${port}/api`)
+})
+
+/*
 app.listen(port, function (err) {
   if (err) throw err;
   console.log(`Backend: http://localhost:${port}/api`);
 });
+**/
